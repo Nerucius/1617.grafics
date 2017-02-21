@@ -2,7 +2,7 @@
 
 Plane::Plane(vec3 orig, vec3 norm, Material* m) : Object(m) {
     origin = orig;
-    normal = norm;
+    normal = normalize(norm);
 }
 
 bool Plane::hit(const Ray& r, float t_min, float t_max, HitInfo& info) const {

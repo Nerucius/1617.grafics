@@ -1,5 +1,9 @@
 #include "Triangle.h"
 
+/**
+ * @brief Triangle::Triangle
+ * Triangle Polygon defined by 3 vertices
+ */
 Triangle::Triangle(vec3 _v1, vec3 _v2, vec3 _v3, Material* m) : Object(m){
     v1 = _v1;
     v2 = _v2;
@@ -40,7 +44,8 @@ bool Triangle::hit(const Ray& r, float t_min, float t_max, HitInfo& info) const 
         info.p = r.origin + (r.direction * t);
         info.t = t;
         info.mat_ptr = material;
-        info.normal = vec3(0,0,0);
+        // Normal calculation, depends on vertex ordering!
+        info.normal = normalize(cross(e1,e2));
 
         return true;
     }

@@ -6,7 +6,7 @@ Scene::Scene()
 {
     // creacio de la camera
     //vec3 lookfrom(0, 1.8, 25);
-    vec3 lookfrom(20,10,20);
+    vec3 lookfrom(20,10,30);
     vec3 lookat(0, 0, 0);
     float dist_to_focus = 10.0;
     float aperture = 0.1;
@@ -41,24 +41,33 @@ void Scene::RandomScene() {
     //objects.push_back(new Sphere(vec3(0  , 1, 0), 1, new Lambertian(vec3(1, 0.6, 1))));
     //objects.push_back(new Sphere(vec3(1.5, 0.9  , 0), 1, new Lambertian(vec3(1, 0.4, 1))));
 
-    // Planes
-    vec3 grass = vec3(0.6, 0.85, 0.5);
-    vec3 sky =   vec3(0.5, 0.7, 1.0);
-    vec3 darkgray =  vec3(0.4, 0.4, 0.4);
-    vec3 gray =  vec3(0.5, 0.5, 0.5);
+    // Colors!
+    vec3 white =      vec3(1, 1, 1);
     vec3 lightgray =  vec3(0.65, 0.65, 0.65);
-    vec3 white =  vec3(1, 1, 1);
-    vec3 green =  vec3(0.2, 0.9, 0.2);
+    vec3 gray =       vec3(0.5, 0.5, 0.5);
+    vec3 darkgray =   vec3(0.4, 0.4, 0.4);
+    vec3 black =      vec3(0,0,0);
+    vec3 lightgreen = vec3(0.6, 0.85, 0.5);
+    vec3 green =      vec3(0.2, 0.8, 0.2);
+    vec3 darkgreen =  vec3(0.2, 0.6, 0.2);
+    vec3 lightblue =  vec3(0.5, 0.7, 1.0);
+    vec3 blue =       vec3(0.4, 0.4, 0.8);
+    vec3 darkblue =   vec3(0.3, 0.3, 0.6);
+    vec3 lightred =   vec3(0.9,0.6,0.6);
+    vec3 red =        vec3(0.9,0.4,0.4);
+    vec3 darkred =    vec3(0.5,0.3,0.3);
+
+    objects.push_back(new Cube(vec3(1,1,1), 1, new Lambertian(red)));
 
     objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightgray) ) );
-    objects.push_back(new Plane(vec3(0,0,0), vec3(1,0,0), new Lambertian(darkgray) ) );
-    objects.push_back(new Plane(vec3(0,0,0), vec3(0,0,1), new Lambertian(gray) ) );
+    objects.push_back(new Plane(vec3(0,0,0), vec3(1,0,0), new Lambertian(lightgray) ) );
+    objects.push_back(new Plane(vec3(0,0,0), vec3(0,0,1), new Lambertian(lightgray) ) );
 
     vec3 v1 = vec3(0,0, 3);
     vec3 v2 = vec3(3,5, 1);
     vec3 v3 = vec3(6,0, -1);
 
-    objects.push_back(new Triangle(v1,v2,v3, new Lambertian(green) ) );
+    //objects.push_back(new Triangle(v1,v2,v3, new Lambertian(lightgreen) ) );
 
 
     //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(grass) ) );
@@ -102,7 +111,7 @@ bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const 
     }
 
     if(closest){
-        closest->hit(raig, t_min,t_max, info);
+        closest->hit(raig, t_min, t_max, info);
         return true;
     }
 
@@ -126,7 +135,11 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
     HitInfo* info = new HitInfo;
 
     if(Scene::hit(ray, t_min, t_max, *info)){
-        return info->mat_ptr->diffuse /*+ info->normal*0.3f*/;
+        vec3 raynorm = normalize(ray.direction);
+        vec3 color = info->mat_ptr->diffuse;
+        // Poor man's lighting, cosine of raycast<->surf normal times color
+        float cosine = dot(info->normal, raynorm) / (2);
+        return info->mat_ptr->diffuse * abs(cosine*2);
     }
 
 

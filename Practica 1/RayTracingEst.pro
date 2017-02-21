@@ -21,7 +21,8 @@ SOURCES += \
     ReadFile.cpp \
     Cara.cpp \
     Plane.cpp \
-    Triangle.cpp
+    Triangle.cpp \
+    Cube.cpp
 
 
 include(deployment.pri)
@@ -163,4 +164,5 @@ HEADERS += \
     ReadFile.h \
     Cara.h \
     Plane.h \
-    Triangle.h
+    Triangle.h \
+    Cube.h
