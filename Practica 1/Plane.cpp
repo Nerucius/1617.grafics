@@ -28,5 +28,5 @@ bool Plane::hit(const Ray& r, float t_min, float t_max, HitInfo& info) const {
 
         return false;
     }
-
+    return false;
 }

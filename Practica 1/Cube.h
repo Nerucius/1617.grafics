@@ -21,7 +21,12 @@ private:
         float t = b;
         b = a;
         a = t;
-    };
+    }
+
+    /** Swap two floats, for hit detection */
+    static bool equals(float a, float b, float e){
+        return fabs(a-b) < e;
+    }
 
 };
 

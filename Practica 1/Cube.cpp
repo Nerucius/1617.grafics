@@ -65,38 +65,24 @@ bool Cube::hit(const Ray& r, float t_min, float t_max, HitInfo& info) const {
 
     // Last Check
 
-    if(tmin > t_min && tmax < t_max){
-        // Detect face normal
-        float maxcos = 0.7017;
-        vec3 raynorm = normalize(r.direction);
-        float fdot = dot(raynorm, forward);
-        float rdot = dot(raynorm, right);
-        float udot = dot(raynorm, up);
-
-        if(fdot > maxcos){
-            info.normal = forward;
-            printf("forward");
-        }
-        if(fdot < -maxcos)
-            info.normal = -forward;
-        if(rdot > maxcos){
-            printf("right");
-            info.normal = right;
-        }
-        if(rdot < -maxcos)
-            info.normal = -right;
-        if(udot > maxcos){
-            printf("up");
-            info.normal = up;
-        }
-        if(udot < -maxcos)
-            info.normal = -up;
-
+    if(tmin > t_min && tmax < t_max){     
 
         // Intersection is valid, fill in info
         info.t = tmin;
         info.p = r.origin + (r.direction * tmin);
         info.mat_ptr = material;
+
+
+        // Detect face normal
+        if(equals(info.p.x, bmax.x, 0.001))
+                info.normal = vec3(1,0,0);
+
+        if(equals(info.p.y, bmax.y, 0.001))
+                info.normal = vec3(0,1,0);
+
+        if(equals(info.p.z, bmax.z, 0.001))
+                info.normal = vec3(0,0,1);
+
 
         return true;
     }

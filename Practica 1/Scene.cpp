@@ -26,6 +26,12 @@ Scene::~Scene()
         if(objects[i]){
             if (dynamic_cast<Sphere*>(objects[i]))
                     delete (Sphere *)(objects[i]);
+            if (dynamic_cast<Plane*>(objects[i]))
+                    delete (Plane *)(objects[i]);
+            if (dynamic_cast<Triangle*>(objects[i]))
+                    delete (Triangle *)(objects[i]);
+            if (dynamic_cast<Cube*>(objects[i]))
+                    delete (Cube *)(objects[i]);
         }
     }
     delete cam;
@@ -135,6 +141,7 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
     HitInfo* info = new HitInfo;
 
     if(Scene::hit(ray, t_min, t_max, *info)){
+        //return info->normal;
         vec3 raynorm = normalize(ray.direction);
         vec3 color = info->mat_ptr->diffuse;
         // Poor man's lighting, cosine of raycast<->surf normal times color
