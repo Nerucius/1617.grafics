@@ -62,12 +62,16 @@ void Scene::RandomScene() {
     vec3 lightred =   vec3(0.9,0.6,0.6);
     vec3 red =        vec3(0.9,0.4,0.4);
     vec3 darkred =    vec3(0.5,0.3,0.3);
+    vec3 pink =       vec3(1,0,1);
 
-    objects.push_back(new Cube(vec3(1,1,1), 1, new Lambertian(red)));
+    //objects.push_back(new Cube(vec3(1,1,1), 1, new Lambertian(red)));
 
-    objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightgray) ) );
-    objects.push_back(new Plane(vec3(0,0,0), vec3(1,0,0), new Lambertian(lightgray) ) );
-    objects.push_back(new Plane(vec3(0,0,0), vec3(0,0,1), new Lambertian(lightgray) ) );
+    //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightgray) ) );
+    //objects.push_back(new Plane(vec3(0,0,0), vec3(1,0,0), new Lambertian(lightgray) ) );
+    //objects.push_back(new Plane(vec3(0,0,0), vec3(0,0,1), new Lambertian(lightgray) ) );
+
+    string f = string("/home/aortegor10.alumnes/Documents/1617.grafics/Practica 1/resources/peo1K.obj");
+    objects.push_back(new BoundaryObject(f, new Lambertian(lightgreen)));
 
     vec3 v1 = vec3(0,0, 3);
     vec3 v2 = vec3(3,5, 1);
@@ -159,7 +163,7 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
     */
      //color = 0.5f*vec3(ray.direction.x+1, ray.direction.y+1, ray.direction.z+1);
 
-     return vec3(1,0,0);
+     return vec3(0.8,0,0);
      float factor = (ray.direction.y + 2) * 0.25;
 
      vec3 bluefactor = vec3(0.5,0.7,1.) * factor;

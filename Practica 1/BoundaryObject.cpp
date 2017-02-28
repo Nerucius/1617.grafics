@@ -7,7 +7,15 @@ BoundaryObject::BoundaryObject(string s, Material *m) : Object(m)
   readObj(s);
   // TO DO: Cal fer un recorregut de totes les cares per a posar-les com Triangles
   // Cal recorrer l'estructura de l'objecte segons cara-vertexs que es carrega
+  for(uint i = 0; i < cares.size(); i++){
+      Cara c = cares[i];
+      vec3 v0 = vec3(vertexs[c.idxVertices[0]]);
+      vec3 v1 = vec3(vertexs[c.idxVertices[1]]);
+      vec3 v2 = vec3(vertexs[c.idxVertices[2]]);
 
+      Triangle* t = new Triangle(v0, v1, v2, m);
+      triangles.push_back(*t);
+  }
 
   vertexs.clear();
   cares.clear();
@@ -18,9 +26,13 @@ BoundaryObject::~BoundaryObject() {
 }
 
 bool BoundaryObject::hit(const Ray& r, float t_min, float t_max, HitInfo& rec) const {
-
-    // TO DO: A implementar en la Fase 1
-    return false;
+  for(uint i = 0; i < triangles.size(); i++){
+      Triangle t = triangles[i];
+      if (t.hit(r, t_min, t_max, rec)){
+          return true;
+      }
+  }
+  return false;
 }
 
 // Llegeix un fitxer .obj
@@ -105,8 +117,8 @@ void BoundaryObject::readObj(string filename){
                 //fprintf (stderr, "Do not recognize: '%s'\n", str_orig);
             }
         }
+        fclose(fp);
     }
-    fclose(fp);
 }
 
 /**
