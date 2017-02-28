@@ -13,7 +13,9 @@ BoundaryObject::BoundaryObject(string s, Material *m) : Object(m)
       vec3 v1 = vec3(vertexs[c.idxVertices[1]]);
       vec3 v2 = vec3(vertexs[c.idxVertices[2]]);
 
-      Triangle* t = new Triangle(v0, v1, v2, m);
+      // SUCK MY DICK
+      Material* newMat = new Lambertian(vec3(m->diffuse));
+      Triangle* t = new Triangle(v0, v1, v2, newMat);
       triangles.push_back(*t);
   }
 

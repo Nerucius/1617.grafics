@@ -70,8 +70,8 @@ void Scene::RandomScene() {
     //objects.push_back(new Plane(vec3(0,0,0), vec3(1,0,0), new Lambertian(lightgray) ) );
     //objects.push_back(new Plane(vec3(0,0,0), vec3(0,0,1), new Lambertian(lightgray) ) );
 
-    string f = string("/home/aortegor10.alumnes/Documents/1617.grafics/Practica 1/resources/peo1K.obj");
-    objects.push_back(new BoundaryObject(f, new Lambertian(lightgreen)));
+    //string f = string("/home/aortegor10.alumnes/Documents/1617.grafics/Practica 1/resources/peo1K.obj");
+    //objects.push_back(new BoundaryObject(f, new Lambertian(lightgreen)));
 
     vec3 v1 = vec3(0,0, 3);
     vec3 v2 = vec3(3,5, 1);
@@ -84,7 +84,8 @@ void Scene::RandomScene() {
     //objects.push_back(new Plane(vec3(10,0,0), vec3(-1,0,1), new Lambertian(gray) ) );
     //objects.push_back(new Plane(vec3(0,0,-10), vec3(0,0,1), new Lambertian(sky) ) );
 
-//  objects.push_back(new BoundaryObject("../RayTracing201617/resources/peo1K.obj", new Lambertian(vec3(0.2, 0.6, 0.8))));
+    string filepath = string("../Practica 1/resources/peo1K.obj");
+    objects.push_back(new BoundaryObject(filepath, new Lambertian(green)));
 
 }
 
