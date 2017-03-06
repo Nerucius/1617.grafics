@@ -1,23 +1,37 @@
 #include "BoundaryObject.h"
 #include <string.h>
 
-BoundaryObject::BoundaryObject(string s, Material *m) : Object(m)
+BoundaryObject::BoundaryObject(string s, vec3 offset, Material *m) : Object(m)
 { 
 
   readObj(s);
-  // TO DO: Cal fer un recorregut de totes les cares per a posar-les com Triangles
+  // TODO: Cal fer un recorregut de totes les cares per a posar-les com Triangles
   // Cal recorrer l'estructura de l'objecte segons cara-vertexs que es carrega
-  for(uint i = 0; i < cares.size(); i++){
-      Cara c = cares[i];
-      vec3 v0 = vec3(vertexs[c.idxVertices[0]]);
-      vec3 v1 = vec3(vertexs[c.idxVertices[1]]);
-      vec3 v2 = vec3(vertexs[c.idxVertices[2]]);
+  triangles.clear();
 
-      // SUCK MY DICK
-      Material* newMat = new Lambertian(vec3(m->diffuse));
-      Triangle* t = new Triangle(v0, v1, v2, newMat);
-      triangles.push_back(*t);
+  vec3 bmin;
+  vec3 bmax;
+
+  //vec3 offset = vec3(23, 7.8, 5);
+
+  for(Cara c : cares){
+      // Read face and load each of the face's vertices
+      vec3 v0 = vec3(vertexs[c.idxVertices[0]]) + offset;
+      vec3 v1 = vec3(vertexs[c.idxVertices[1]]) + offset;
+      vec3 v2 = vec3(vertexs[c.idxVertices[2]]) + offset;
+
+      // find min and max vertices
+      bmin = min(v0, bmin);
+      bmax = max(v0, bmax);
+
+      //Material* newMat = new Lambertian(m->diffuse);
+      Triangle* t = new Triangle(v0, v1, v2, m);
+
+      // SigSegv here on some faces????
+      triangles.push_back(t);
   }
+
+  bounds = new Cube(bmin, bmax, m);
 
   vertexs.clear();
   cares.clear();
@@ -28,12 +42,17 @@ BoundaryObject::~BoundaryObject() {
 }
 
 bool BoundaryObject::hit(const Ray& r, float t_min, float t_max, HitInfo& rec) const {
-  for(uint i = 0; i < triangles.size(); i++){
-      Triangle t = triangles[i];
-      if (t.hit(r, t_min, t_max, rec)){
-          return true;
-      }
-  }
+
+    // Bounds check
+    if(!bounds->hit(r, t_min, t_max,rec))
+        return false;
+
+
+    for(Triangle* t : triangles){
+        if(t->hit(r, t_min,t_max, rec))
+            return true;
+    }
+
   return false;
 }
 

@@ -6,12 +6,12 @@ Scene::Scene()
 {
     // creacio de la camera
     //vec3 lookfrom(0, 1.8, 25);
-    vec3 lookfrom(20,10,30);
+    vec3 lookfrom(10,6,10);
     vec3 lookat(0, 0, 0);
     float dist_to_focus = 10.0;
     float aperture = 0.1;
-    int pixelsX = 1280;
-    int pixelsY = 720;
+    int pixelsX = 480;
+    int pixelsY = 320;
     cam = new Camera(lookfrom, lookat, vec3(0,1,0), 20, pixelsX, pixelsY, aperture, dist_to_focus);
 
    // TODO: Cal crear els objectes de l'escena
@@ -41,12 +41,6 @@ Scene::~Scene()
 // amb diferents radis i diferents materials. S'usa drand48 per generar numeros random
 
 void Scene::RandomScene() {
-
-
-    //objects.push_back(new Sphere(vec3(-1 , 0.9  , 0), 1, new Lambertian(vec3(1, 0.8, 1))));
-    //objects.push_back(new Sphere(vec3(0  , 1, 0), 1, new Lambertian(vec3(1, 0.6, 1))));
-    //objects.push_back(new Sphere(vec3(1.5, 0.9  , 0), 1, new Lambertian(vec3(1, 0.4, 1))));
-
     // Colors!
     vec3 white =      vec3(1, 1, 1);
     vec3 lightgray =  vec3(0.65, 0.65, 0.65);
@@ -64,14 +58,17 @@ void Scene::RandomScene() {
     vec3 darkred =    vec3(0.5,0.3,0.3);
     vec3 pink =       vec3(1,0,1);
 
+    // Spheres
+    //objects.push_back(new Sphere(vec3(10 , 5 , 0), 3, new Lambertian(red)));
+    //objects.push_back(new Sphere(vec3(0  , 1, 0), 1, new Lambertian(vec3(1, 0.6, 1))));
+    //objects.push_back(new Sphere(vec3(1.5, 0.9  , 0), 1, new Lambertian(vec3(1, 0.4, 1))));
+
     //objects.push_back(new Cube(vec3(1,1,1), 1, new Lambertian(red)));
 
-    //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightgray) ) );
-    //objects.push_back(new Plane(vec3(0,0,0), vec3(1,0,0), new Lambertian(lightgray) ) );
-    //objects.push_back(new Plane(vec3(0,0,0), vec3(0,0,1), new Lambertian(lightgray) ) );
+    objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
+    objects.push_back(new Plane(vec3(-5,0,0), vec3(1,0,0), new Lambertian(lightred) ) );
+    objects.push_back(new Plane(vec3(0,0,-5), vec3(0,0,1), new Lambertian(lightgreen) ) );
 
-    //string f = string("/home/aortegor10.alumnes/Documents/1617.grafics/Practica 1/resources/peo1K.obj");
-    //objects.push_back(new BoundaryObject(f, new Lambertian(lightgreen)));
 
     vec3 v1 = vec3(0,0, 3);
     vec3 v2 = vec3(3,5, 1);
@@ -85,7 +82,10 @@ void Scene::RandomScene() {
     //objects.push_back(new Plane(vec3(0,0,-10), vec3(0,0,1), new Lambertian(sky) ) );
 
     string filepath = string("../Practica 1/resources/peo1K.obj");
-    objects.push_back(new BoundaryObject(filepath, new Lambertian(green)));
+    objects.push_back(new BoundaryObject(filepath, vec3(23, 7.8, 5), new Lambertian(lightgray)));
+
+    //string filepath = string("../Practica 1/resources/BishopNewSimplificat.obj");
+    //objects.push_back(new BoundaryObject(filepath, vec3(0,0,0), new Lambertian(lightgray)));
 
 }
 
@@ -151,7 +151,7 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
         vec3 color = info->mat_ptr->diffuse;
         // Poor man's lighting, cosine of raycast<->surf normal times color
         float cosine = dot(info->normal, raynorm) / (2);
-        return info->mat_ptr->diffuse * abs(cosine*2);
+        return info->mat_ptr->diffuse * abs(cosine*3);
     }
 
 

@@ -10,10 +10,12 @@ Cube::Cube(vec3 orig, float hw, Material* m) : Object(m){
     // Bounds
     bmin = origin - vec3(hw, hw, hw);
     bmax = origin + vec3(hw, hw, hw);
+}
 
-    forward = vec3(0,0,1);
-    right = vec3(1,0,0);
-    up = vec3(0,1,0);
+Cube::Cube(vec3 _bmin, vec3 _bmax, Material* m) : Object(m){
+    // Bounds
+    bmin = _bmin;
+    bmax = _bmax;
 }
 
 

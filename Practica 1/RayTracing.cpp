@@ -59,12 +59,25 @@ void Render()
          for (int x = 0; x < scene->cam->viewportX; x++) {
 
             vec3 col(0, 0, 0);
-            float u = float(x) / float(scene->cam->viewportX);
-            float v = float(y) / float(scene->cam->viewportY);
 
-            Ray r = scene->cam->getRay(u, v);
+            float halfpixel = 0.25f / scene->cam->viewportX;
+            int NUM_SAMPLES = 4;
+            vector<vec2> samples;
+            samples.push_back(vec2(-halfpixel, -halfpixel));
+            samples.push_back(vec2(+halfpixel, +halfpixel));
+            samples.push_back(vec2(-halfpixel, +halfpixel));
+            samples.push_back(vec2(+halfpixel, -halfpixel));
 
-            col += scene->ComputeColor(r,0);
+            for(int i = 0; i < NUM_SAMPLES; i++){
+                float u = float(x) / float(scene->cam->viewportX);
+                float v = float(y) / float(scene->cam->viewportY);
+                u += samples[i].x;
+                v += samples[i].y;
+                Ray r = scene->cam->getRay(u, v);
+                col += scene->ComputeColor(r,0) / (float)NUM_SAMPLES;
+
+            }
+
 #ifdef GLUT
             float pixelX =  2*((x+0.5f)/scene->cam->viewportX)-1;
             float pixelY = 2*((y+0.5f)/scene->cam->viewportY)-1;
