@@ -47,10 +47,19 @@ bool BoundaryObject::hit(const Ray& r, float t_min, float t_max, HitInfo& rec) c
     if(!bounds->hit(r, t_min, t_max,rec))
         return false;
 
+    HitInfo close;
+    close.t = HUGE_VALF;
 
-    for(Triangle* t : triangles){
+    for(Triangle* t : triangles)
         if(t->hit(r, t_min,t_max, rec))
-            return true;
+               if(rec.t < close.t)
+                    close = rec;
+
+
+
+    if(close.t != HUGE_VALF){
+        rec = close;
+        return true;
     }
 
   return false;
