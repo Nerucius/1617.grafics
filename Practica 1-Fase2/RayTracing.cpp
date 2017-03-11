@@ -54,21 +54,33 @@ void Render()
                         // cada vertex especificat és un punt.
                         //Reference https://en.wikibooks.org/wiki/OpenGL_Programming/GLStart/Tut3 si us interessa.
 #endif
-    // algorisme de RayTracing
 
+    // Anti Aliasing Variables
+    float hp = .65 / scene->cam->viewportX; // half-pixel (adjusted for best image quality)
+    float hhp = hp / 2.; // half-half-pixel
+    float gcos = cos(26.6 * (M_PI/180.0)); // Grid pattern angle sin/cos
+    float gsin = sin(26.6 * (M_PI/180.0));
+
+    // Samples must be 0 / 4 / 8
+    // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
+    int NUM_SAMPLES = 8;
+    vector<vec2> samples;
+    samples.push_back(vec2(0, 0));
+    samples.push_back(vec2( hp * gcos,  hp * gsin));
+    samples.push_back(vec2(-hp * gcos, -hp * gsin));
+    samples.push_back(vec2(-hp * gcos,  hp * gsin));
+    samples.push_back(vec2( hp * gcos, -hp * gsin));
+    samples.push_back(vec2( hhp * gcos,  hhp * gsin));
+    samples.push_back(vec2(-hhp * gcos, -hhp * gsin));
+    samples.push_back(vec2(-hhp * gcos,  hhp * gsin));
+    samples.push_back(vec2( hhp * gcos, -hhp * gsin));
+
+    // algorisme de RayTracing
     // Recorregut de cada pixel de la imatge final
     for (int y = scene->cam->viewportY-1; y >= 0; y--) {
          for (int x = 0; x < scene->cam->viewportX; x++) {
 
             vec3 col(0, 0, 0);
-
-            float halfpixel = 0.25f / scene->cam->viewportX;
-            int NUM_SAMPLES = 4;
-            vector<vec2> samples;
-            samples.push_back(vec2(-halfpixel, -halfpixel));
-            samples.push_back(vec2(+halfpixel, +halfpixel));
-            samples.push_back(vec2(-halfpixel, +halfpixel));
-            samples.push_back(vec2(+halfpixel, -halfpixel));
 
             for(int i = 0; i < NUM_SAMPLES; i++){
                 float u = float(x) / float(scene->cam->viewportX);
@@ -120,7 +132,7 @@ void Render_omp(){
 
     // Samples must be 0 / 4 / 8
     // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
-    int NUM_SAMPLES = 8;
+    int NUM_SAMPLES = 4;
     vector<vec2> samples;
     samples.push_back(vec2(0, 0));
     samples.push_back(vec2( hp * gcos,  hp * gsin));
