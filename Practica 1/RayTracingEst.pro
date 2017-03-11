@@ -4,6 +4,9 @@ CONFIG += c++11
 CONFIG -= app_bundle
 CONFIG -= qt
 
+QMAKE_CXXFLAGS += -fopenmp
+LIBS += -fopenmp
+
 INCLUDEPATH += /opt/X11/include
 LIBPATH += /opt/X11/lib
 LIBS += -lGL

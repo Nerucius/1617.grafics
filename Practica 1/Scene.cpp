@@ -6,12 +6,12 @@ Scene::Scene()
 {
     // creacio de la camera
     //vec3 lookfrom(0, 1.8, 25);
-    vec3 lookfrom(10,6,10);
-    vec3 lookat(0, 0, 0);
+    vec3 lookfrom(14,16,14);
+    vec3 lookat(0, 4, 0);
     float dist_to_focus = 10.0;
     float aperture = 0.1;
-    int pixelsX = 480;
-    int pixelsY = 320;
+    int pixelsX = 720;
+    int pixelsY = 460;
     cam = new Camera(lookfrom, lookat, vec3(0,1,0), 20, pixelsX, pixelsY, aperture, dist_to_focus);
 
    // TODO: Cal crear els objectes de l'escena
