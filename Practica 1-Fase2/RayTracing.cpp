@@ -22,7 +22,7 @@ vec3** FRAME_BUFFER;
 vector<vec2> AA_SAMPLES;
 // Samples must be 0 / 4 / 8
 // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
-int NUM_SAMPLES = 0;
+int NUM_SAMPLES = 4;
 
 // Metode Render
 
@@ -174,21 +174,23 @@ void initSuperSamplingAA(){
 
     // Precompute Sine and Cosie of 26.6º. Chosen due to best
     // visual clarity for SSAA based on a rotated grid pattern
-    float gcos = cos(26.6 * (M_PI/180.0));
-    float gsin = sin(26.6 * (M_PI/180.0));
+    float lcos = cos(26.6 * (M_PI/180.0));
+    float lsin = sin(26.6 * (M_PI/180.0));
+    float rcos = cos((45+26.6) * (M_PI/180.0));
+    float rsin = sin((45+26.6) * (M_PI/180.0));
 
     // Create sampling points, as offset from the center of the pixel
     AA_SAMPLES.push_back(vec2(0, 0));
 
-    AA_SAMPLES.push_back(vec2( hp * gcos,  hp * gsin));
-    AA_SAMPLES.push_back(vec2(-hp * gcos, -hp * gsin));
-    AA_SAMPLES.push_back(vec2(-hp * gcos,  hp * gsin));
-    AA_SAMPLES.push_back(vec2( hp * gcos, -hp * gsin));
+    AA_SAMPLES.push_back(vec2( hp * lcos,  hp * lsin));
+    AA_SAMPLES.push_back(vec2(-hp * lcos, -hp * lsin));
+    AA_SAMPLES.push_back(vec2(-hp * lcos,  hp * lsin));
+    AA_SAMPLES.push_back(vec2( hp * lcos, -hp * lsin));
 
-    AA_SAMPLES.push_back(vec2( hhp * gcos,  hhp * gsin));
-    AA_SAMPLES.push_back(vec2(-hhp * gcos, -hhp * gsin));
-    AA_SAMPLES.push_back(vec2(-hhp * gcos,  hhp * gsin));
-    AA_SAMPLES.push_back(vec2( hhp * gcos, -hhp * gsin));
+    AA_SAMPLES.push_back(vec2( hhp * rcos,  hhp * rsin));
+    AA_SAMPLES.push_back(vec2(-hhp * rcos, -hhp * rsin));
+    AA_SAMPLES.push_back(vec2(-hhp * rcos,  hhp * rsin));
+    AA_SAMPLES.push_back(vec2( hhp * rcos, -hhp * rsin));
 }
 
 // Metode principal del programa

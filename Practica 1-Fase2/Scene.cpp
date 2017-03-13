@@ -62,20 +62,28 @@ void Scene::RandomScene() {
 
     // lights
     lights.push_back(new PointLight(
-                         vec3( 2, 8, 10),
-                         vec3(.4,.4, .4),
-                         vec3(.5,.5, .5),
-                         vec3( 1, 1,  1),
-                         vec3(.5, 0,.01))
+                         vec3( -4,  8, 10),
+                         vec3( .1, .1, .1),
+                         vec3( .5, .5, .5),
+                         vec3(  1,  1,  1),
+                         vec3( .5,  0,.01))
                      );
+
+//    lights.push_back(new PointLight(
+//                         vec3( 8,  8, 20),
+//                         vec3( .1, .1, .1),
+//                         vec3( .8, .2, .2),
+//                         vec3(  1,  0,  0),
+//                         vec3( .5,  0,.01))
+//                     );
 
 
     // Spheres
-    Lambertian* blinn1 = new Lambertian(darkgray, gray, white, 1,1);
-    Lambertian* blinn2 = new Lambertian(darkgray, yellow, white, 1,1);
+    Lambertian* gray_shinny = new Lambertian(darkgray, gray, white, 50, 1);
+    Lambertian* yellow_matte = new Lambertian(darkgray, yellow, gray, 5, 1);
 
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, blinn1));
-    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, blinn2));
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, gray_shinny));
+    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, yellow_matte));
 
     /*
     objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
@@ -135,18 +143,35 @@ bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const 
 
 
 
-vec3 Scene::BlinnPhong(vec3 point, vec3 normal, const Material* mat, bool shadow){
+vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
     vec3 color = vec3(0,0,0);
+
+    HitInfo info;
 
     vec3 V = normalize(cam->origin - point);
     for(PointLight* l : lights){
+
+        // Shadow Ray Calculation
+        if(shadow){
+            Ray r;
+            r.origin = point;
+            r.direction = l->pos - point;
+            if(Scene::hit(r, 0.01, 1, info)){
+                color += (mat->Ka * l->Ia);
+                continue;
+            }
+        }
+
+
         vec3 L = normalize(l->pos - point);
-        vec3 R = normalize(2 * dot(L, normal) * (normal - L));
+        vec3 H = normalize(L+V);
+        //vec3 R = normalize(2 * dot(L, normal) * (N - L));
+        //float costheta = dot(R, V);
 
         color = color
                  + (mat->Ka * l->Ia) // Ambient
-                 + (mat->Kd * l->Id * (dot(L, normal))) // Diffuse
-                 //+ (mat->Ks * l->Is * pow(dot(V, R), mat->as) ) // Specular
+                 + (mat->Kd * l->Id * (dot(L, N))) // Diffuse
+                 + (mat->Ks * l->Is * pow(dot(N, H), mat->as) ) // Specular
                 ;
     }
     return color;
@@ -175,7 +200,7 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
      */
 
     if(Scene::hit(ray, t_min, t_max, *info)){
-        return Scene::BlinnPhong(info->p, info->normal, info->mat_ptr, false);
+        return Scene::BlinnPhong(info->p, info->normal, info->mat_ptr, true);
     }
 
     // Background
