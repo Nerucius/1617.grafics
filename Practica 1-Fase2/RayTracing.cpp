@@ -63,7 +63,7 @@ void Render()
 
     // Samples must be 0 / 4 / 8
     // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
-    int NUM_SAMPLES = 8;
+    int NUM_SAMPLES = 0;
     vector<vec2> samples;
     samples.push_back(vec2(0, 0));
     samples.push_back(vec2( hp * gcos,  hp * gsin));
@@ -88,7 +88,7 @@ void Render()
                 u += samples[i].x;
                 v += samples[i].y;
                 Ray r = scene->cam->getRay(u, v);
-                col += scene->ComputeColor(r,0) / (float)NUM_SAMPLES;
+                col += scene->ComputeColor(r,0) / ((float)NUM_SAMPLES+1);
             }
 
 #ifdef GLUT
@@ -161,7 +161,7 @@ void Render_omp(){
                 u += samples[i].x;
                 v += samples[i].y;
                 Ray r = scene->cam->getRay(u, v);
-                *col += scene->ComputeColor(r,0) / (float)NUM_SAMPLES;
+                *col += scene->ComputeColor(r,0) / ((float)NUM_SAMPLES+1);
             }
          }
       }

@@ -1,17 +1,24 @@
-#ifndef POINTLIGHT_H
-#define POINTLIGHT_H
+#pragma once
+#include "glm/glm.hpp"
 
+using namespace glm;
 
 class PointLight {
 
 public:
-    PointLight(/*vec3 pos, vec3 amb, vec3 dif, vec3 spec*/);
+    PointLight(const vec3&, const vec3&, const vec3& ,const vec3& , const vec3& );
     ~PointLight(){}
+
+    vec3 pos;
     /*
-    vec3 position;
-    vec3 ambient, diffuse, specular;
-    */
+     * Ia - ambient light color
+     * Id - diffuse light color
+     * Is - specular light color
+     * */
+    vec3 Ia, Id, Is;
+    vec3 coef;
+
 
 };
 
-#endif // POINTLIGHT_H
+

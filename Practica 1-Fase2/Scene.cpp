@@ -59,9 +59,22 @@ void Scene::RandomScene() {
     vec3 pink =       vec3(1,0,1);
     vec3 yellow =     vec3(0.8,0.8,0);
 
+
+    // lights
+    lights.push_back(new PointLight(vec3(2,8,10),
+                                    vec3(.4,.4,.4),
+                                    vec3(.5,.5,.5),
+                                    vec3(1,1,1),
+                                    vec3(.5, 0, .01))
+                     );
+
+
     // Spheres
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, new Lambertian(gray)));
-    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, new Lambertian(yellow)));
+    Lambertian* blinn1 = new Lambertian(gray, black, black, 1,1);
+    Lambertian* blinn2 = new Lambertian(yellow, black, black, 1,1);
+
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, blinn1));
+    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, blinn2));
 
     /*
     objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
@@ -119,6 +132,21 @@ bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const 
     return false;
 }
 
+
+
+vec3 Scene::BlinnPhong(vec3 point, vec3 normal, const Material* mat, bool shadow){
+    vec3 color = vec3(0,0,0);
+
+    for(PointLight* l : lights){
+        vec3 L = l->pos - point;
+
+
+        color += (mat->Ka * l->Ia) + (mat->Kd * l->Id * (dot(L, normal)));
+    }
+    return color;
+
+}
+
 /*
 ** TODO: Funcio ComputeColor es la funcio recursiva del RayTracing.
 ** A modificar en la Fase 2 de l'enunciat per incloure Blinn-Phong  i ombres
@@ -141,7 +169,7 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
      */
 
     if(Scene::hit(ray, t_min, t_max, *info)){
-        return info->mat_ptr->diffuse ;
+        return Scene::BlinnPhong(info->p, info->normal, info->mat_ptr, false);
     }
 
     // Background
@@ -153,4 +181,5 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
     return bluefactor + whitefactor;
 
 }
+
 

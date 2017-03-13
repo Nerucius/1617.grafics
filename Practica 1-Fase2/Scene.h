@@ -28,6 +28,7 @@ public:
     // Funcio recursiva que calcula el color. Inicialment es
     // es crida a cada pixel. Tambe es crida en calcular les ombres o les reflexions.
     vec3 ComputeColor (Ray &ray, int depth );
+    vec3 BlinnPhong(vec3, vec3, const Material*, bool);
 
     // Vector d'objectes continguts a l'escena
     std::vector<Object*> objects;

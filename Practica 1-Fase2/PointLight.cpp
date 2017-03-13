@@ -1,11 +1,13 @@
 #include "PointLight.h"
 
-PointLight::PointLight(/*vec3 pos, vec3 amb, vec3 dif, vec3 spec*/){
-    /*
-    position = pos;
-    color = color;
-    ambient = amb;
-    diffuse = dif;
-    specular = spec;
-    */
+// I
+
+PointLight::PointLight(const vec3& _pos, const vec3& amb,const vec3& dif, const vec3& spec,const vec3& _coef){
+
+    pos = _pos;
+    Ia = amb;
+    Id = dif;
+    Is = spec;
+    coef = _coef;
+
 }

@@ -3,7 +3,7 @@
 
 
 Material::Material():
-    diffuse(1.0f)
+    Kd(1.0f)
   {}
 
 Material::~Material()
