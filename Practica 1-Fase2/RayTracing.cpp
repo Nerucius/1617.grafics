@@ -19,6 +19,10 @@ void cleanup() {
 
 /* FrameBuffer memory for multithreaded code */
 vec3** FRAME_BUFFER;
+vector<vec2> AA_SAMPLES;
+// Samples must be 0 / 4 / 8
+// SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
+int NUM_SAMPLES = 0;
 
 // Metode Render
 
@@ -55,26 +59,6 @@ void Render()
                         //Reference https://en.wikibooks.org/wiki/OpenGL_Programming/GLStart/Tut3 si us interessa.
 #endif
 
-    // Anti Aliasing Variables
-    float hp = .65 / scene->cam->viewportX; // half-pixel (adjusted for best image quality)
-    float hhp = hp / 2.; // half-half-pixel
-    float gcos = cos(26.6 * (M_PI/180.0)); // Grid pattern angle sin/cos
-    float gsin = sin(26.6 * (M_PI/180.0));
-
-    // Samples must be 0 / 4 / 8
-    // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
-    int NUM_SAMPLES = 0;
-    vector<vec2> samples;
-    samples.push_back(vec2(0, 0));
-    samples.push_back(vec2( hp * gcos,  hp * gsin));
-    samples.push_back(vec2(-hp * gcos, -hp * gsin));
-    samples.push_back(vec2(-hp * gcos,  hp * gsin));
-    samples.push_back(vec2( hp * gcos, -hp * gsin));
-    samples.push_back(vec2( hhp * gcos,  hhp * gsin));
-    samples.push_back(vec2(-hhp * gcos, -hhp * gsin));
-    samples.push_back(vec2(-hhp * gcos,  hhp * gsin));
-    samples.push_back(vec2( hhp * gcos, -hhp * gsin));
-
     // algorisme de RayTracing
     // Recorregut de cada pixel de la imatge final
     for (int y = scene->cam->viewportY-1; y >= 0; y--) {
@@ -85,8 +69,8 @@ void Render()
             for(int i = 0; i < NUM_SAMPLES; i++){
                 float u = float(x) / float(scene->cam->viewportX);
                 float v = float(y) / float(scene->cam->viewportY);
-                u += samples[i].x;
-                v += samples[i].y;
+                u += AA_SAMPLES[i].x;
+                v += AA_SAMPLES[i].y;
                 Ray r = scene->cam->getRay(u, v);
                 col += scene->ComputeColor(r,0) / ((float)NUM_SAMPLES+1);
             }
@@ -115,6 +99,16 @@ void Render()
 
 }
 
+/**
+ * Rendering function, redesigned for Parallel Computing of scene
+ * Rays. Considerably faster than the alternative single-threaded
+ * Render().
+ *
+ * *NOTE*: Do not call ANY OpenGL methods inside the parallel block.
+ * OpenGL context is exclusive to the master thread (The thread that
+ * created it in the first place)
+ *
+ */
 void Render_omp(){
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);// Netejar la finestra OpenGL
     glBegin(GL_POINTS);
@@ -124,28 +118,8 @@ void Render_omp(){
     //Reference https://en.wikibooks.org/wiki/OpenGL_Programming/GLStart/Tut3 si us interessa.
     // algorisme de RayTracing
 
-    // Anti Aliasing Variables
-    float hp = .65 / scene->cam->viewportX; // half-pixel (adjusted for best image quality)
-    float hhp = hp / 2.; // half-half-pixel
-    float gcos = cos(26.6 * (M_PI/180.0)); // Grid pattern angle sin/cos
-    float gsin = sin(26.6 * (M_PI/180.0));
-
-    // Samples must be 0 / 4 / 8
-    // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
-    int NUM_SAMPLES = 4;
-    vector<vec2> samples;
-    samples.push_back(vec2(0, 0));
-    samples.push_back(vec2( hp * gcos,  hp * gsin));
-    samples.push_back(vec2(-hp * gcos, -hp * gsin));
-    samples.push_back(vec2(-hp * gcos,  hp * gsin));
-    samples.push_back(vec2( hp * gcos, -hp * gsin));
-    samples.push_back(vec2( hhp * gcos,  hhp * gsin));
-    samples.push_back(vec2(-hhp * gcos, -hhp * gsin));
-    samples.push_back(vec2(-hhp * gcos,  hhp * gsin));
-    samples.push_back(vec2( hhp * gcos, -hhp * gsin));
-
     // Recorregut de cada pixel de la imatge final
-#pragma omp parallel for schedule(static) collapse(2)
+#pragma omp parallel for schedule(guided) collapse(2)
     for (int y = scene->cam->viewportY-1; y >= 0; y--) {
          for (int x = 0; x < scene->cam->viewportX; x++) {
             int FB_INDEX = y*scene->cam->viewportX + x;
@@ -158,8 +132,8 @@ void Render_omp(){
             for(int i = 0; i < NUM_SAMPLES+1; i++){
                 float u = float(x) / float(scene->cam->viewportX);
                 float v = float(y) / float(scene->cam->viewportY);
-                u += samples[i].x;
-                v += samples[i].y;
+                u += AA_SAMPLES[i].x;
+                v += AA_SAMPLES[i].y;
                 Ray r = scene->cam->getRay(u, v);
                 *col += scene->ComputeColor(r,0) / ((float)NUM_SAMPLES+1);
             }
@@ -191,6 +165,32 @@ void Render_omp(){
     //glutPostRedisplay();
 }
 
+void initSuperSamplingAA(){
+    // Anti Aliasing Init
+
+    // half-pixel (adjusted for best image quality)
+    float hp = .65 / scene->cam->viewportX;
+    float hhp = hp / 2.; // half-half-pixel
+
+    // Precompute Sine and Cosie of 26.6º. Chosen due to best
+    // visual clarity for SSAA based on a rotated grid pattern
+    float gcos = cos(26.6 * (M_PI/180.0));
+    float gsin = sin(26.6 * (M_PI/180.0));
+
+    // Create sampling points, as offset from the center of the pixel
+    AA_SAMPLES.push_back(vec2(0, 0));
+
+    AA_SAMPLES.push_back(vec2( hp * gcos,  hp * gsin));
+    AA_SAMPLES.push_back(vec2(-hp * gcos, -hp * gsin));
+    AA_SAMPLES.push_back(vec2(-hp * gcos,  hp * gsin));
+    AA_SAMPLES.push_back(vec2( hp * gcos, -hp * gsin));
+
+    AA_SAMPLES.push_back(vec2( hhp * gcos,  hhp * gsin));
+    AA_SAMPLES.push_back(vec2(-hhp * gcos, -hhp * gsin));
+    AA_SAMPLES.push_back(vec2(-hhp * gcos,  hhp * gsin));
+    AA_SAMPLES.push_back(vec2( hhp * gcos, -hhp * gsin));
+}
+
 // Metode principal del programa
 
 int main(int argc, char **argv) {
@@ -198,6 +198,8 @@ int main(int argc, char **argv) {
     // inicialitza l'escena: el constructor de l'escena s'encarrega de
     // crear els objectes i les llums
     scene = new Scene();
+
+    initSuperSamplingAA();
 
     int pixels = scene->cam->viewportX * scene->cam->viewportY;
     FRAME_BUFFER = (vec3**)malloc(sizeof(vec3*) * pixels);
@@ -220,7 +222,7 @@ int main(int argc, char **argv) {
 	atexit(cleanup);
 
     // Inicia el main loop per a poder refrescar l'escena
-	glutMainLoop();
+    glutMainLoop();
 #else
     Render();
 #endif

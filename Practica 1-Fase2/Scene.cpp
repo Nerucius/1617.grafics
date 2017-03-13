@@ -45,7 +45,7 @@ void Scene::RandomScene() {
     vec3 white =      vec3(1, 1, 1);
     vec3 lightgray =  vec3(0.65, 0.65, 0.65);
     vec3 gray =       vec3(0.5, 0.5, 0.5);
-    vec3 darkgray =   vec3(0.4, 0.4, 0.4);
+    vec3 darkgray =   vec3(0.2, 0.2, 0.2);
     vec3 black =      vec3(0,0,0);
     vec3 lightgreen = vec3(0.6, 0.85, 0.5);
     vec3 green =      vec3(0.2, 0.8, 0.2);
@@ -61,17 +61,18 @@ void Scene::RandomScene() {
 
 
     // lights
-    lights.push_back(new PointLight(vec3(2,8,10),
-                                    vec3(.4,.4,.4),
-                                    vec3(.5,.5,.5),
-                                    vec3(1,1,1),
-                                    vec3(.5, 0, .01))
+    lights.push_back(new PointLight(
+                         vec3( 2, 8, 10),
+                         vec3(.4,.4, .4),
+                         vec3(.5,.5, .5),
+                         vec3( 1, 1,  1),
+                         vec3(.5, 0,.01))
                      );
 
 
     // Spheres
-    Lambertian* blinn1 = new Lambertian(gray, black, black, 1,1);
-    Lambertian* blinn2 = new Lambertian(yellow, black, black, 1,1);
+    Lambertian* blinn1 = new Lambertian(darkgray, gray, white, 1,1);
+    Lambertian* blinn2 = new Lambertian(darkgray, yellow, white, 1,1);
 
     objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, blinn1));
     objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, blinn2));
@@ -137,11 +138,16 @@ bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const 
 vec3 Scene::BlinnPhong(vec3 point, vec3 normal, const Material* mat, bool shadow){
     vec3 color = vec3(0,0,0);
 
+    vec3 V = normalize(cam->origin - point);
     for(PointLight* l : lights){
-        vec3 L = l->pos - point;
+        vec3 L = normalize(l->pos - point);
+        vec3 R = normalize(2 * dot(L, normal) * (normal - L));
 
-
-        color += (mat->Ka * l->Ia) + (mat->Kd * l->Id * (dot(L, normal)));
+        color = color
+                 + (mat->Ka * l->Ia) // Ambient
+                 + (mat->Kd * l->Id * (dot(L, normal))) // Diffuse
+                 //+ (mat->Ks * l->Is * pow(dot(V, R), mat->as) ) // Specular
+                ;
     }
     return color;
 
