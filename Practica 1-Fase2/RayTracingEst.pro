@@ -27,7 +27,8 @@ SOURCES += \
     Plane.cpp \
     Triangle.cpp \
     Cube.cpp \
-    PointLight.cpp
+    PointLight.cpp \
+    Metallic.cpp
 
 
 include(deployment.pri)
@@ -171,4 +172,5 @@ HEADERS += \
     Plane.h \
     Triangle.h \
     Cube.h \
-    PointLight.h
+    PointLight.h \
+    Metallic.h

@@ -72,7 +72,7 @@ void Render()
                 u += AA_SAMPLES[i].x;
                 v += AA_SAMPLES[i].y;
                 Ray r = scene->cam->getRay(u, v);
-                col += scene->ComputeColor(r,0) / ((float)NUM_SAMPLES+1);
+                col += scene->ComputeColor(r, 3) / ((float)NUM_SAMPLES+1);
             }
 
 #ifdef GLUT
@@ -135,7 +135,7 @@ void Render_omp(){
                 u += AA_SAMPLES[i].x;
                 v += AA_SAMPLES[i].y;
                 Ray r = scene->cam->getRay(u, v);
-                *col += scene->ComputeColor(r,0) / ((float)NUM_SAMPLES+1);
+                *col += scene->ComputeColor(r, 5) / ((float)NUM_SAMPLES+1);
             }
          }
       }

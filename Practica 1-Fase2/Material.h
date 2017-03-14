@@ -16,7 +16,7 @@ public:
     virtual bool scatter(const Ray& r_in, const HitInfo& rec, vec3& color, Ray& scattered) const = 0;
 
     vec3 Ka, Kd, Ks;
-    float as = 1, alpha = 1;
+    float beta = 1, alpha = 1;
 
 protected:
     vec3 RandomInSphere() const;

@@ -6,8 +6,8 @@ Scene::Scene()
 {
     // creacio de la camera
     //vec3 lookfrom(0, 1.8, 25);
-    vec3 lookfrom(2*1, 1.8*1, 12*1);
-    vec3 lookat(0, 0, 0);
+    vec3 lookfrom(2*1, 2.4, 12*1);
+    vec3 lookat(0, 0.5, 0);
 
     float dist_to_focus = 10.0;
     float aperture = 0.1;
@@ -59,7 +59,7 @@ void Scene::RandomScene() {
     vec3 blue =       vec3(0.4, 0.4, 0.8);
     vec3 darkblue =   vec3(0.3, 0.3, 0.6);
     vec3 lightred =   vec3(0.9,0.6,0.6);
-    vec3 red =        vec3(0.9,0.4,0.4);
+    vec3 red =        vec3(0.9,0.2,0.2);
     vec3 darkred =    vec3(0.5,0.3,0.3);
     vec3 pink =       vec3(1,0,1);
     vec3 yellow =     vec3(0.8,0.8,0);
@@ -72,13 +72,13 @@ void Scene::RandomScene() {
                          //cam->origin,
                          vec3( -4,  8, 10),
                          vec3( .1, .1, .1),
-                         vec3( .5, .5, .5),
+                         vec3( .8, .8, .8),
                          vec3(  1,  1,  1),
                          vec3( .5, .0,.01))
                      );
 
 //    lights.push_back(new PointLight(
-//                         vec3( 8,  8, 20),
+//                         vec3( 8,  8, -10),
 //                         vec3( .1, .1, .1),
 //                         vec3( .8, .2, .2),
 //                         vec3(  1,  0,  0),
@@ -87,11 +87,16 @@ void Scene::RandomScene() {
 
 
     // Spheres
-    Lambertian* gray_shinny = new Lambertian(darkgray, gray, white, 50, 1);
-    Lambertian* yellow_matte = new Lambertian(darkgray, yellow, gray, 5, 1);
-    Lambertian* red_shiny = new Lambertian(darkgray, red, gray, 50, 1);
+    Metallic* gray_shiny = new Metallic(darkgray, gray, white, 50, 1);
+    Metallic* red_shiny = new Metallic(darkgray, red, white, 50, 1);
 
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, gray_shinny));
+    Metallic* mirror = new Metallic(black, black, black, 1, 1);
+
+    Lambertian* yellow_matte = new Lambertian(darkgray, yellow, darkgray, 5, 1);
+
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, gray_shiny));
+    objects.push_back(new Sphere(vec3(-2, 1.5, -1), 1., red_shiny));
+
     objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, yellow_matte));
 
     /*
@@ -162,7 +167,9 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
 
     HitInfo info;
 
+    //  Surface -> Camera
     vec3 V = normalize(cam->origin - point);
+
     for(PointLight* l : lights){
 
         // Shadow Ray Calculation
@@ -170,17 +177,20 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
             Ray r;
             r.origin = point;
             r.direction = l->pos - point;
+            /* We are setting the tmax param as 1 to make the detection range the
+             * same as the distance to the light. */
             if(Scene::hit(r, 0.01, 1, info)){
                 color += (mat->Ka * l->Ia);
                 continue;
             }
         }
 
-        // Light -> Camera
+        // Surface -> Light
         vec3 L = (l->pos - point);
 
         // Attenuation factor
         float d2 = L.x * L.x + L.y * L.y + L.z + L.z;
+        // NOTE: search for the explanation of parabolic affectation
         float attf = 1. / (l->coef.x + l->coef.y * 0 + l->coef.z * d2);
 
         L = normalize(L);
@@ -193,7 +203,7 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
         color = color
                  + (mat->Ka * l->Ia) * attf// Ambient
                  + (mat->Kd * l->Id * (dot(L, N))) * attf// Diffuse
-                 + (mat->Ks * l->Is * pow(dot(N, H), mat->as)) * attf // Specular
+                 + (mat->Ks * l->Is * pow(dot(N, H), mat->beta)) * attf // Specular
                 ;
     }
     return color;
@@ -209,11 +219,13 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
 
 
 vec3 Scene::ComputeColor (Ray &ray, int depth ) {
+    //depth = 2;
+    //depth = depth < 1 ? 1 : depth;
 
     vec3 color;
     // Define near and far planes
-    float t_min = 0.1;
-    float t_max = 100;
+    float t_min = 0.01;
+    float t_max = 50;
     HitInfo* info = new HitInfo;
 
     /* TODO: Canviar aquesta assignacio pel color basat amb la il.luminacio basada amb Phong-Blinn segons
@@ -222,17 +234,25 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
      */
 
     if(Scene::hit(ray, t_min, t_max, *info)){
-        return Scene::BlinnPhong(info->p, info->normal, info->mat_ptr, true);
+        // Impact with scene object. calculate lighting
+        color = Scene::BlinnPhong(info->p, info->normal, info->mat_ptr, true);
+
+        depth--;
+        if (depth > 0){
+            Ray scattered;
+            info->mat_ptr->scatter(ray, *info, color, scattered);
+            color += (depth * length(info->mat_ptr->Ks) / 10.f ) * this->ComputeColor(scattered, depth);
+        }
+
+    }else{
+        // Background
+        float factor = (ray.direction.y + 2) * 0.5;
+        vec3 bluefactor = vec3(0.5,0.7,1.) * factor;
+        vec3 whitefactor = vec3(1,1,1) * (1-factor);
+        color = bluefactor + whitefactor;
     }
 
-    // Background
-    float factor = (ray.direction.y + 2) * 0.5;
-
-    vec3 bluefactor = vec3(0.5,0.7,1.) * factor;
-    vec3 whitefactor = vec3(1,1,1) * (1-factor);
-
-    return bluefactor + whitefactor;
-
+    return color;
 }
 
 

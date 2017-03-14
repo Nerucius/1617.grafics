@@ -11,6 +11,7 @@
 #include "Cube.h"
 #include "BoundaryObject.h"
 #include "Lambertian.h"
+#include "Metallic.h"
 #include "Camera.h"
 #include "PointLight.h"
 
