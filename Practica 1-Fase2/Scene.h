@@ -29,6 +29,7 @@ public:
     // es crida a cada pixel. Tambe es crida en calcular les ombres o les reflexions.
     vec3 ComputeColor (Ray &ray, int depth );
     vec3 BlinnPhong(vec3, vec3, const Material*, bool);
+    void setAmbientLight(const vec3& color);
 
     // Vector d'objectes continguts a l'escena
     std::vector<Object*> objects;
@@ -38,6 +39,7 @@ public:
     Camera *cam;
 
 private:
+    vec3 globalIa;
     void RandomScene();
 
 };

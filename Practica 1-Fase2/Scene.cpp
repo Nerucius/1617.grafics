@@ -6,13 +6,18 @@ Scene::Scene()
 {
     // creacio de la camera
     //vec3 lookfrom(0, 1.8, 25);
-    vec3 lookfrom(2, 1.8, 12);
+    vec3 lookfrom(2*1, 1.8*1, 12*1);
     vec3 lookat(0, 0, 0);
+
     float dist_to_focus = 10.0;
     float aperture = 0.1;
+
     int pixelsX = 720;
     int pixelsY = 460;
+
     cam = new Camera(lookfrom, lookat, vec3(0,1,0), 20, pixelsX, pixelsY, aperture, dist_to_focus);
+
+    globalIa = vec3(.01, .01, .01);
 
    // TODO: Cal crear els objectes de l'escena
     RandomScene();
@@ -61,12 +66,15 @@ void Scene::RandomScene() {
 
 
     // lights
+    this->setAmbientLight( vec3(.01,.01,.01) );
+
     lights.push_back(new PointLight(
+                         //cam->origin,
                          vec3( -4,  8, 10),
                          vec3( .1, .1, .1),
                          vec3( .5, .5, .5),
                          vec3(  1,  1,  1),
-                         vec3( .5,  0,.01))
+                         vec3( .5, .0,.01))
                      );
 
 //    lights.push_back(new PointLight(
@@ -81,6 +89,7 @@ void Scene::RandomScene() {
     // Spheres
     Lambertian* gray_shinny = new Lambertian(darkgray, gray, white, 50, 1);
     Lambertian* yellow_matte = new Lambertian(darkgray, yellow, gray, 5, 1);
+    Lambertian* red_shiny = new Lambertian(darkgray, red, gray, 50, 1);
 
     objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, gray_shinny));
     objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, yellow_matte));
@@ -94,11 +103,15 @@ void Scene::RandomScene() {
     vec3 v2 = vec3(3,5, 1);
     vec3 v3 = vec3(6,0, -1);
     objects.push_back(new Triangle(v1,v2,v3, new Lambertian(lightgreen) ) );
-
-    string filepath = string("../Practica 1/resources/peo1K.obj");
-    objects.push_back(new BoundaryObject(filepath, vec3(23, 7.8, 5), new Lambertian(lightgray)));
     */
+    //string filepath = string("../Practica 1/resources/peo1K.obj");
+    //objects.push_back(new BoundaryObject(filepath, vec3(23, 7.8, 5), gray_shinny));
+    //*/
 
+}
+
+void Scene::setAmbientLight(const vec3& color){
+    this->globalIa = color;
 }
 
 /*
@@ -144,7 +157,8 @@ bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const 
 
 
 vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
-    vec3 color = vec3(0,0,0);
+    // Always add global Ia
+    vec3 color = vec3(0,0,0) + globalIa;
 
     HitInfo info;
 
@@ -162,16 +176,24 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
             }
         }
 
+        // Light -> Camera
+        vec3 L = (l->pos - point);
 
-        vec3 L = normalize(l->pos - point);
-        vec3 H = normalize(L+V);
-        //vec3 R = normalize(2 * dot(L, normal) * (N - L));
+        // Attenuation factor
+        float d2 = L.x * L.x + L.y * L.y + L.z + L.z;
+        float attf = 1. / (l->coef.x + l->coef.y * 0 + l->coef.z * d2);
+
+        L = normalize(L);
+        // Half vector between light->cam and pos->cam
+        vec3 H = normalize(L + V);
+
+        //vec3 R = normalize(2 * dot(L, N) * (N - L));
         //float costheta = dot(R, V);
 
         color = color
-                 + (mat->Ka * l->Ia) // Ambient
-                 + (mat->Kd * l->Id * (dot(L, N))) // Diffuse
-                 + (mat->Ks * l->Is * pow(dot(N, H), mat->as) ) // Specular
+                 + (mat->Ka * l->Ia) * attf// Ambient
+                 + (mat->Kd * l->Id * (dot(L, N))) * attf// Diffuse
+                 + (mat->Ks * l->Is * pow(dot(N, H), mat->as)) * attf // Specular
                 ;
     }
     return color;
