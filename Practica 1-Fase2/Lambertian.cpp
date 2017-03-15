@@ -18,7 +18,7 @@ Lambertian::~Lambertian(){}
 bool Lambertian::scatter(const Ray& r_in, const HitInfo& rec, vec3& color, Ray& scattered) const  {
     vec3 target = rec.p + rec.normal + this->RandomInSphere();
     scattered = Ray(rec.p, normalize(target-rec.p));
-    //color = Kd;
+    color = Kd;
     return true;
 }
 

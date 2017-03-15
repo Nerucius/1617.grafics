@@ -22,7 +22,8 @@ vec3** FRAME_BUFFER;
 vector<vec2> AA_SAMPLES;
 // Samples must be 0 / 4 / 8
 // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
-int NUM_SAMPLES = 8;
+int NUM_SAMPLES = 4;
+int REC_DEPTH = 8;
 
 // Metode Render
 
@@ -72,7 +73,7 @@ void Render()
                 u += AA_SAMPLES[i].x;
                 v += AA_SAMPLES[i].y;
                 Ray r = scene->cam->getRay(u, v);
-                col += scene->ComputeColor(r, 3) / ((float)NUM_SAMPLES+1);
+                col += scene->ComputeColor(r, REC_DEPTH) / ((float)NUM_SAMPLES+1);
             }
 
 #ifdef GLUT
@@ -135,7 +136,7 @@ void Render_omp(){
                 u += AA_SAMPLES[i].x;
                 v += AA_SAMPLES[i].y;
                 Ray r = scene->cam->getRay(u, v);
-                *col += scene->ComputeColor(r, 5) / ((float)NUM_SAMPLES+1);
+                *col += scene->ComputeColor(r, REC_DEPTH) / ((float)NUM_SAMPLES+1);
             }
          }
       }

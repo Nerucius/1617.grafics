@@ -21,6 +21,6 @@ bool Metallic::scatter(const Ray& r_in, const HitInfo& rec, vec3& color, Ray& sc
     target += RandomInSphere() * fuzzy;
 
     scattered = Ray(rec.p, normalize(target-rec.p));
-    //color = Ks;
+    color = Kd;
     return true;
 }

@@ -87,23 +87,28 @@ void Scene::RandomScene() {
 
 
     // Spheres
-    Metallic* gray_shiny = new Metallic(darkgray, gray, white, 50, 1);
-    Metallic* red_shiny = new Metallic(darkgray, red, white, 50, 1);
+    Material* gray_shiny = new Metallic(darkgray, gray, white, 50, 1);
+    Material* gold = new Metallic(yellow, yellow, red, 50, 1);
 
-    Metallic* mirror = new Metallic(black, darkgray, white, 50, 1);
+    Material* mirror = new Metallic(black, darkgray, white, 50, 1);
 
-    Lambertian* yellow_matte = new Lambertian(darkgray, yellow, darkgray, 5, 1);
+    Material* yellow_matte = new Lambertian(darkgray, yellow, darkgray, 5, 1);
+    Material* blue_matte = new Lambertian(darkgray, blue, darkgray, 5, 1);
 
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, gray_shiny));
-    objects.push_back(new Sphere(vec3(-2, 1.5, -1), 1., mirror));
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, yellow_matte));
+    objects.push_back(new Sphere(vec3(1, 0, -1), 0.5, blue_matte));
+
+    objects.push_back(new Sphere(vec3(-2, 1.5, -1), 1., blue_matte));
+
+
+    //objects.push_back(new Cube(vec3(0,0,0), 0.5, gold));
 
     objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, mirror));
 
+    //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
+    //objects.push_back(new Plane(vec3(-10,0,0), vec3(1,0,1), mirror ) );
+    //objects.push_back(new Plane(vec3(0,0,-5), vec3(0,0,1), new Lambertian(lightgreen) ) );
     /*
-    objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
-    objects.push_back(new Plane(vec3(-5,0,0), vec3(1,0,0), new Lambertian(lightred) ) );
-    objects.push_back(new Plane(vec3(0,0,-5), vec3(0,0,1), new Lambertian(lightgreen) ) );
-
     vec3 v1 = vec3(0,0, 3);
     vec3 v2 = vec3(3,5, 1);
     vec3 v3 = vec3(6,0, -1);
@@ -239,9 +244,10 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
 
         depth--;
         if (depth > 0){
+            vec3 rColor;
             Ray scattered;
-            info->mat_ptr->scatter(ray, *info, color, scattered);
-            color += (depth * length(info->mat_ptr->Ks) / 10.f ) * this->ComputeColor(scattered, depth);
+            info->mat_ptr->scatter(ray, *info, rColor, scattered);
+            color = color + rColor * this->ComputeColor(scattered, depth);
         }
 
     }else{
