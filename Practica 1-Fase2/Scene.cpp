@@ -91,11 +91,13 @@ void Scene::RandomScene() {
     Material* gold = new Metallic(yellow, yellow, red, 50, 1);
 
     Material* mirror = new Metallic(black, darkgray, white, 50, 1);
+    Material* water = new Transparent(black, white, white, 50, 1);
+
 
     Material* yellow_matte = new Lambertian(darkgray, yellow, darkgray, 5, 1);
     Material* blue_matte = new Lambertian(darkgray, blue, darkgray, 5, 1);
 
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, yellow_matte));
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, water));
     objects.push_back(new Sphere(vec3(1, 0, -1), 0.5, blue_matte));
 
     objects.push_back(new Sphere(vec3(-2, 1.5, -1), 1., blue_matte));

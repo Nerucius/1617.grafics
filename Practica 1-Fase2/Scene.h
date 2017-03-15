@@ -12,6 +12,7 @@
 #include "BoundaryObject.h"
 #include "Lambertian.h"
 #include "Metallic.h"
+#include "Transparent.h"
 #include "Camera.h"
 #include "PointLight.h"
 
