@@ -12,8 +12,8 @@ Scene::Scene()
     float dist_to_focus = 10.0;
     float aperture = 0.1;
 
-    int pixelsX = 720;
-    int pixelsY = 460;
+    int pixelsX = 1280;
+    int pixelsY = 720;
 
     cam = new Camera(lookfrom, lookat, vec3(0,1,0), 20, pixelsX, pixelsY, aperture, dist_to_focus);
 
@@ -90,14 +90,14 @@ void Scene::RandomScene() {
     Metallic* gray_shiny = new Metallic(darkgray, gray, white, 50, 1);
     Metallic* red_shiny = new Metallic(darkgray, red, white, 50, 1);
 
-    Metallic* mirror = new Metallic(black, black, black, 1, 1);
+    Metallic* mirror = new Metallic(black, darkgray, white, 50, 1);
 
     Lambertian* yellow_matte = new Lambertian(darkgray, yellow, darkgray, 5, 1);
 
     objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, gray_shiny));
-    objects.push_back(new Sphere(vec3(-2, 1.5, -1), 1., red_shiny));
+    objects.push_back(new Sphere(vec3(-2, 1.5, -1), 1., mirror));
 
-    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, yellow_matte));
+    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, mirror));
 
     /*
     objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );

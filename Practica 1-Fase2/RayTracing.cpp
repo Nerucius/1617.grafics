@@ -22,7 +22,7 @@ vec3** FRAME_BUFFER;
 vector<vec2> AA_SAMPLES;
 // Samples must be 0 / 4 / 8
 // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
-int NUM_SAMPLES = 4;
+int NUM_SAMPLES = 8;
 
 // Metode Render
 
@@ -170,7 +170,6 @@ void initSuperSamplingAA(){
 
     // half-pixel (adjusted for best image quality)
     float hp = .65 / scene->cam->viewportX;
-    float hhp = hp / 2.; // half-half-pixel
 
     // Precompute Sine and Cosie of 26.6º. Chosen due to best
     // visual clarity for SSAA based on a rotated grid pattern
@@ -187,10 +186,10 @@ void initSuperSamplingAA(){
     AA_SAMPLES.push_back(vec2(-hp * lcos,  hp * lsin));
     AA_SAMPLES.push_back(vec2( hp * lcos, -hp * lsin));
 
-    AA_SAMPLES.push_back(vec2( hhp * rcos,  hhp * rsin));
-    AA_SAMPLES.push_back(vec2(-hhp * rcos, -hhp * rsin));
-    AA_SAMPLES.push_back(vec2(-hhp * rcos,  hhp * rsin));
-    AA_SAMPLES.push_back(vec2( hhp * rcos, -hhp * rsin));
+    AA_SAMPLES.push_back(vec2( hp * rcos,  hp * rsin));
+    AA_SAMPLES.push_back(vec2(-hp * rcos, -hp * rsin));
+    AA_SAMPLES.push_back(vec2(-hp * rcos,  hp * rsin));
+    AA_SAMPLES.push_back(vec2( hp * rcos, -hp * rsin));
 }
 
 // Metode principal del programa
