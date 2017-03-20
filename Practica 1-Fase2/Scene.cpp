@@ -6,8 +6,8 @@ Scene::Scene()
 {
     // creacio de la camera
     //vec3 lookfrom(0, 1.8, 25);
-    vec3 lookfrom(2*1, 2.4, 12*1);
-    vec3 lookat(0, 0.5, 0);
+    vec3 lookfrom(13, 2, 3);
+    vec3 lookat(0, 0, 0);
 
     float dist_to_focus = 10.0;
     float aperture = 0.1;
@@ -55,7 +55,7 @@ void Scene::RandomScene() {
     vec3 lightgreen = vec3(0.6, 0.85, 0.5);
     vec3 green =      vec3(0.2, 0.8, 0.2);
     vec3 darkgreen =  vec3(0.2, 0.6, 0.2);
-    vec3 lightblue =  vec3(0.5, 0.7, 1.0);
+    vec3 lightblue =  vec3(0.6, 0.6, 1.0);
     vec3 blue =       vec3(0.4, 0.4, 0.8);
     vec3 darkblue =   vec3(0.3, 0.3, 0.6);
     vec3 lightred =   vec3(0.9,0.6,0.6);
@@ -88,24 +88,27 @@ void Scene::RandomScene() {
 
     // Spheres
     Material* gray_shiny = new Metallic(darkgray, gray, white, 50, 1);
-    Material* gold = new Metallic(yellow, yellow, red, 50, 1);
+    Material* gold = new Metallic(yellow, red, yellow, 100, 1);
 
-    Material* mirror = new Metallic(black, darkgray, white, 50, 1);
-    Material* water = new Transparent(black, white, white, 50, 1);
+    Material* mirror = new Metallic(black, darkgray, white, 10, 1);
 
+    Material* water = new Transparent(black, black, white*0.1f, 10, 1);
 
     Material* yellow_matte = new Lambertian(darkgray, yellow, darkgray, 5, 1);
     Material* blue_matte = new Lambertian(darkgray, blue, darkgray, 5, 1);
 
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, water));
-    objects.push_back(new Sphere(vec3(1, 0, -1), 0.5, blue_matte));
 
-    objects.push_back(new Sphere(vec3(-2, 1.5, -1), 1., blue_matte));
+    objects.push_back(new Sphere(vec3(0, 1, 0), 1, water));
+    //objects.push_back(new Sphere(vec3(0, 0, -1), -0.3, water));
+
+
+    objects.push_back(new Sphere(vec3(-3, 1, 1), 1, mirror));
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, blue_matte));
 
 
     //objects.push_back(new Cube(vec3(0,0,0), 0.5, gold));
 
-    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, mirror));
+    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, yellow_matte));
 
     //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
     //objects.push_back(new Plane(vec3(-10,0,0), vec3(1,0,1), mirror ) );
@@ -243,14 +246,17 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
     if(Scene::hit(ray, t_min, t_max, *info)){
         // Impact with scene object. calculate lighting
         color = Scene::BlinnPhong(info->p, info->normal, info->mat_ptr, true);
+        //color = vec3(0);
 
-        depth--;
-        if (depth > 0){
-            vec3 rColor;
-            Ray scattered;
-            info->mat_ptr->scatter(ray, *info, rColor, scattered);
-            color = color + rColor * this->ComputeColor(scattered, depth);
-        }
+        vec3 KColor;
+        Ray scattered;
+        info->mat_ptr->scatter(ray, *info, KColor, scattered);
+        vec3 inverseKt = (vec3(1.f)-info->mat_ptr->Kt);
+
+        if (--depth > 0)
+            color = inverseKt * color + KColor * this->ComputeColor(scattered, depth);
+        else
+            color = inverseKt * color + KColor;
 
     }else{
         // Background

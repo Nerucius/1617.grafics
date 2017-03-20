@@ -17,6 +17,7 @@ public:
 
     vec3 Ka, Kd, Ks;
     float beta = 1, alpha = 1;
+    vec3 Kt = vec3(0);
 
 protected:
     vec3 RandomInSphere() const;

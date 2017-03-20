@@ -11,4 +11,5 @@ public:
     virtual bool scatter(const Ray& r_in, const HitInfo& rec, vec3& color, Ray& scattered) const;
 
     float n;
+
 };
