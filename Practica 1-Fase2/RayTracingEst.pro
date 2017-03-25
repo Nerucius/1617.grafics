@@ -29,7 +29,9 @@ SOURCES += \
     Cube.cpp \
     PointLight.cpp \
     Metallic.cpp \
-    Transparent.cpp
+    Transparent.cpp \
+    AreaLight.cpp \
+    Light.cpp
 
 
 include(deployment.pri)
@@ -175,4 +177,6 @@ HEADERS += \
     Cube.h \
     PointLight.h \
     Metallic.h \
-    Transparent.h
+    Transparent.h \
+    AreaLight.h \
+    Light.h

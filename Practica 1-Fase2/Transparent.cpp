@@ -12,7 +12,7 @@ Transparent::Transparent(const vec3 &amb, const vec3 &diff, const vec3 &spec, fl
     beta = _as;
     alpha = _alpha;
 
-    n = 1.01f;
+    n = 2.43f;
     Kt = vec3(1) * 1.f;
 }
 
@@ -28,6 +28,7 @@ bool Transparent::scatter(const Ray& r_in, const HitInfo& rec, vec3& color, Ray&
         N = -N;
 
     // If the angle is too extreme, this function returns (0,0,0)
+    // And so the light reflected instead of refracting
     vec3 R = refract(I, N, nfactor);
     if(length(R) < 0.5){
         scattered = Ray(rec.p, reflect(I, N));

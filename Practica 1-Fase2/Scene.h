@@ -2,19 +2,27 @@
 #define SCENE_H
 
 #include <vector>
+#include <stdlib.h>
+
 #include "Ray.h"
 #include "Hitable.h"
+#include "Camera.h"
+
 #include "Object.h"
 #include "Sphere.h"
 #include "Plane.h"
 #include "Triangle.h"
 #include "Cube.h"
 #include "BoundaryObject.h"
-#include "Lambertian.h"
+
+#include "Material.h"
 #include "Metallic.h"
+#include "Lambertian.h"
 #include "Transparent.h"
-#include "Camera.h"
+
+#include "Light.h"
 #include "PointLight.h"
+#include "AreaLight.h"
 
 class Scene: public Hitable
 {
@@ -35,7 +43,7 @@ public:
 
     // Vector d'objectes continguts a l'escena
     std::vector<Object*> objects;
-    std::vector<PointLight*> lights;
+    std::vector<Light*> lights;
 
     // Camera: on está l'observador
     Camera *cam;

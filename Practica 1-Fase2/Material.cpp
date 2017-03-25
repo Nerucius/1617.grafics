@@ -1,7 +1,5 @@
 #include "Material.h"
 
-
-
 Material::Material():
     Kd(1.0f)
   {}

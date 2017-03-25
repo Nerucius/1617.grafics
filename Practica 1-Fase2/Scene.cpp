@@ -1,6 +1,4 @@
 #include "Scene.h"
-#include <stdlib.h>
-
 
 Scene::Scene()
 {
@@ -68,22 +66,24 @@ void Scene::RandomScene() {
     // lights
     this->setAmbientLight( vec3(.01,.01,.01) );
 
-    lights.push_back(new PointLight(
-                         //cam->origin,
-                         vec3( -4,  8, 10),
-                         vec3( .1, .1, .1),
-                         vec3( .8, .8, .8),
-                         vec3(  1,  1,  1),
-                         vec3( .5, .0,.01))
+    lights.push_back(new AreaLight(
+                         vec3(-4,12,10),
+                         0.5f, 8,
+                         vec3(.1f),
+                         vec3(.8f),
+                         vec3(.8f),
+                         vec3(.5,0,.01))
                      );
 
 //    lights.push_back(new PointLight(
-//                         vec3( 8,  8, -10),
-//                         vec3( .1, .1, .1),
-//                         vec3( .8, .2, .2),
-//                         vec3(  1,  0,  0),
-//                         vec3( .5,  0,.01))
+//                         //cam->origin,
+//                         vec3( -4,  12, 10),
+//                         vec3(.1),
+//                         vec3(.8),
+//                         vec3(1),
+//                         vec3(.5, .0,.01))
 //                     );
+
 
 
     // Spheres
@@ -98,16 +98,16 @@ void Scene::RandomScene() {
     Material* blue_matte = new Lambertian(darkgray, blue, darkgray, 5, 1);
 
 
-    objects.push_back(new Sphere(vec3(0, 1, 0), 1, water));
-    //objects.push_back(new Sphere(vec3(0, 0, -1), -0.3, water));
+    // Transparent Sphere
+    //objects.push_back(new Sphere(vec3(0, 1, 0), 1, water));
 
+    // Metallic Spehere
+    //objects.push_back(new Sphere(vec3(-3, 1, 1), 1, mirror));
 
-    objects.push_back(new Sphere(vec3(-3, 1, 1), 1, mirror));
+    // Matte Spehere
     objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, blue_matte));
 
-
-    //objects.push_back(new Cube(vec3(0,0,0), 0.5, gold));
-
+    // Planet Sphere
     objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, yellow_matte));
 
     //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
@@ -173,48 +173,39 @@ bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const 
 
 vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
     // Always add global Ia
-    vec3 color = vec3(0,0,0) + globalIa;
+    //vec3 color = vec3(0) + globalIa;
+    vec3 color = vec3(0);
 
     HitInfo info;
 
     //  Surface -> Camera
     vec3 V = normalize(cam->origin - point);
 
-    for(PointLight* l : lights){
+    for(Light* l : lights){
 
-        // Shadow Ray Calculation
-        if(shadow){
-            Ray r;
-            r.origin = point;
-            r.direction = l->pos - point;
-            /* We are setting the tmax param as 1 to make the detection range the
-             * same as the distance to the light. */
-            if(Scene::hit(r, 0.01, 1, info)){
-                color += (mat->Ka * l->Ia);
-                continue;
-            }
-        }
+        // Light Visibility Calculation (hard / soft shadwos)
+        float lFactor = 1;
+        if(shadow)
+            lFactor = l->visible(this, point);
 
         // Surface -> Light
         vec3 L = (l->pos - point);
-
         // Attenuation factor
         float d2 = L.x * L.x + L.y * L.y + L.z + L.z;
-        // NOTE: search for the explanation of parabolic affectation
         float attf = 1. / (l->coef.x + l->coef.y * 0 + l->coef.z * d2);
 
         L = normalize(L);
+
         // Half vector between light->cam and pos->cam
         vec3 H = normalize(L + V);
 
-        //vec3 R = normalize(2 * dot(L, N) * (N - L));
-        //float costheta = dot(R, V);
-
         color = color
-                 + (mat->Ka * l->Ia) * attf// Ambient
+                 + (mat->Ka * l->Ia) * attf // Ambient
                  + (mat->Kd * l->Id * (dot(L, N))) * attf// Diffuse
                  + (mat->Ks * l->Is * pow(dot(N, H), mat->beta)) * attf // Specular
                 ;
+
+        color = (color * lFactor) + globalIa;
     }
     return color;
 
@@ -254,9 +245,9 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
         vec3 inverseKt = (vec3(1.f)-info->mat_ptr->Kt);
 
         if (--depth > 0)
-            color = inverseKt * color + KColor * this->ComputeColor(scattered, depth);
+            color = /*inverseKt * */ color + KColor * this->ComputeColor(scattered, depth);
         else
-            color = inverseKt * color + KColor;
+            color = /*inverseKt * */ color + KColor;
 
     }else{
         // Background

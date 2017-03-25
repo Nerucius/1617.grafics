@@ -1,13 +1,11 @@
-#ifndef MATERIAL_H
-#define MATERIAL_H
-
+#pragma once
 
 #include "Ray.h"
 #include "Hitable.h"
 
 // Classe abstracte Material. Totes les seves filles hauran de definir el metode abstracte sccater
-class Material
-{
+class Material {
+
 public:
 
     Material();
@@ -21,6 +19,6 @@ public:
 
 protected:
     vec3 RandomInSphere() const;
+
 };
 
-#endif // MATERIAL_H
