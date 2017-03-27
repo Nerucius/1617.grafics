@@ -22,8 +22,10 @@ vec3** FRAME_BUFFER;
 vector<vec2> AA_SAMPLES;
 // Samples must be 0 / 4 / 8
 // SSAAx0 SSAAx4 or SSAAx8 Anti-Aliasing
-int NUM_SAMPLES = 4;
-int REC_DEPTH = 1;
+int NUM_SAMPLES = 0;
+
+// LIGHT BOUNCES [0, ...]
+int REC_DEPTH = 8;
 
 // Metode Render
 

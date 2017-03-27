@@ -3,14 +3,27 @@
 Metallic::Metallic(const vec3& diff):Material()
 {
     Kd = diff;
+    Ka = vec3(0);
+    Ks = vec3(1);
 }
 
-Metallic::Metallic(const vec3 &amb, const vec3 &diff, const vec3 &spec, float _as, float _alpha){
+Metallic::Metallic(const vec3 &amb, const vec3 &diff, const vec3 &spec, float shininess, float beta){
     Ka = amb;
     Kd = diff;
     Ks = spec;
-    beta = _as;
-    alpha = _alpha;
+    Kt = vec3(1) - Ks;
+    this->shininess = shininess;
+    this->beta = beta;
+    this->fuzzy = 0;
+}
+
+Metallic::Metallic(const vec3 &amb, const vec3 &diff, const vec3 &spec, float shininess, float beta, float fuzzy){
+    Ka = amb;
+    Kd = diff;
+    Ks = spec;
+    this->shininess = shininess;
+    this->beta = beta;
+    this->fuzzy = 0;;
 }
 
 Metallic::~Metallic(){}
@@ -22,9 +35,12 @@ bool Metallic::scatter(const Ray& r_in, const HitInfo& rec, vec3& color, Ray& sc
     //target += RandomInSphere() * fuzzy;
     //scattered = Ray(rec.p, normalize(target-rec.p));
 
-    // GLM library
+    // GLM library Reflection
     vec3 R = reflect(normalize(r_in.direction), normalize(rec.normal));
-    scattered = Ray(rec.p, R);
+    vec3 fuzz = vec3(0);
+    if(fuzzy > 0)
+        fuzz = fuzzy * RandomInSphere();
+    scattered = Ray(rec.p, R + fuzz);
 
     color = Ks;
     return true;

@@ -14,7 +14,9 @@ public:
     virtual bool scatter(const Ray& r_in, const HitInfo& rec, vec3& color, Ray& scattered) const = 0;
 
     vec3 Ka, Kd, Ks;
-    float beta = 1, alpha = 1;
+
+    float shininess = 1, beta = 1;
+
     vec3 Kt = vec3(0);
 
 protected:

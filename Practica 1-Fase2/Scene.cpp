@@ -10,8 +10,8 @@ Scene::Scene()
     float dist_to_focus = 10.0;
     float aperture = 0.1;
 
-    int pixelsX = 1280;
-    int pixelsY = 720;
+    int pixelsX = 640;
+    int pixelsY = 400;
 
     cam = new Camera(lookfrom, lookat, vec3(0,1,0), 20, pixelsX, pixelsY, aperture, dist_to_focus);
 
@@ -67,12 +67,13 @@ void Scene::RandomScene() {
     this->setAmbientLight( vec3(.01,.01,.01) );
 
     lights.push_back(new AreaLight(
-                         vec3(-4,12,10),
-                         0.5f, 8,
-                         vec3(.1f),
-                         vec3(.8f),
-                         vec3(.8f),
-                         vec3(.5,0,.01))
+                         vec3(2,8,10),
+                         0, 1,
+                         //1.5f, 64, // Increase the 2nd number to soften shadow
+                         vec3( .4),
+                         vec3( .5),
+                         vec3(1.),
+                         vec3( .5, 0, .01))
                      );
 
 //    lights.push_back(new PointLight(
@@ -87,28 +88,34 @@ void Scene::RandomScene() {
 
 
     // Spheres
-    Material* gray_shiny = new Metallic(darkgray, gray, white, 50, 1);
-    Material* gold = new Metallic(yellow, red, yellow, 100, 1);
+//    Material* gray_shiny = new Metallic(darkgray, gray, white, 50, 1);
+//    Material* gold = new Metallic(yellow, red, yellow, 100, 1);
+    Material* mirror = new Metallic(black, black, white, 10, 1);
+    Material* water = new Transparent(vec3(0), vec3(0), vec3(1), vec3(0.95), 5);
+    Material* red_matte = new Lambertian(darkred, blue, darkgray, 5, 1);
+    Material* blue_matte = new Lambertian(darkblue, red, darkgray, 5, 1);
 
-    Material* mirror = new Metallic(black, darkgray, white, 10, 1);
+    //objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, red_matte));
+    //objects.push_back(new Sphere(vec3(-3, 1, 1), 1, blue_matte));
 
-    Material* water = new Transparent(black, black, white*0.1f, 10, 1);
-
-    Material* yellow_matte = new Lambertian(darkgray, yellow, darkgray, 5, 1);
-    Material* blue_matte = new Lambertian(darkgray, blue, darkgray, 5, 1);
-
-
-    // Transparent Sphere
-    //objects.push_back(new Sphere(vec3(0, 1, 0), 1, water));
-
-    // Metallic Spehere
-    //objects.push_back(new Sphere(vec3(-3, 1, 1), 1, mirror));
-
-    // Matte Spehere
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, blue_matte));
 
     // Planet Sphere
-    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, yellow_matte));
+    Material* sphere2 = new Lambertian(vec3(.2), vec3(.8,.8,0), vec3(1), 10, 1);
+    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, sphere2));
+
+    // Matte Spehere
+    Material* sphere1 = new Lambertian(vec3(.2), vec3(.5), vec3(1), 10, 1);
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, sphere1));
+
+    // Metallic Spehere
+    Material* sphere3 = new Metallic(vec3(.2), vec3(.7,.6,.5), vec3(.7), 10, 1);
+    objects.push_back(new Sphere(vec3(-3, 1, 1), 1, sphere3));
+
+    // Transparent Sphere
+    Material* sphere4 = new Transparent(vec3(0), vec3(0), vec3(1), vec3(.95), 1.33);
+    objects.push_back(new Sphere(vec3(0, 1, 0), 1, sphere4));
+    objects.push_back(new Sphere(vec3(0, 1, 0), -.97, sphere4));
+
 
     //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
     //objects.push_back(new Plane(vec3(-10,0,0), vec3(1,0,1), mirror ) );
@@ -172,15 +179,12 @@ bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const 
 
 
 vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
-    // Always add global Ia
-    //vec3 color = vec3(0) + globalIa;
-    vec3 color = vec3(0);
-
-    HitInfo info;
+    vec3 color;
 
     //  Surface -> Camera
     vec3 V = normalize(cam->origin - point);
 
+    // Iterate over every light
     for(Light* l : lights){
 
         // Light Visibility Calculation (hard / soft shadwos)
@@ -199,15 +203,15 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
         // Half vector between light->cam and pos->cam
         vec3 H = normalize(L + V);
 
-        color = color
-                 + (mat->Ka * l->Ia) * attf // Ambient
-                 + (mat->Kd * l->Id * (dot(L, N))) * attf// Diffuse
-                 + (mat->Ks * l->Is * pow(dot(N, H), mat->beta)) * attf // Specular
-                ;
+        vec3 La = (mat->Ka * l->Ia) * lFactor;
+        vec3 Ld = (mat->Kd * l->Id * (dot(L, N))) * attf * lFactor;
+        vec3 Ls = (mat->Ks * l->Is * pow(dot(N, H), mat->beta)) * attf * lFactor;
 
-        color = (color * lFactor) + globalIa;
+        color = La + Ld + Ls;
     }
-    return color;
+
+    // Add global Ambient at the end
+    return color + globalIa;
 
 }
 
@@ -236,18 +240,17 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
 
     if(Scene::hit(ray, t_min, t_max, *info)){
         // Impact with scene object. calculate lighting
-        color = Scene::BlinnPhong(info->p, info->normal, info->mat_ptr, true);
-        //color = vec3(0);
+        color = this->BlinnPhong(info->p, info->normal, info->mat_ptr, true);
 
         vec3 KColor;
         Ray scattered;
         info->mat_ptr->scatter(ray, *info, KColor, scattered);
-        vec3 inverseKt = (vec3(1.f)-info->mat_ptr->Kt);
+        vec3 inverseKt = (vec3(1.f) - info->mat_ptr->Kt);
 
-        if (--depth > 0)
-            color = /*inverseKt * */ color + KColor * this->ComputeColor(scattered, depth);
-        else
-            color = /*inverseKt * */ color + KColor;
+        if (depth > 0){
+            color = inverseKt * color + KColor * this->ComputeColor(scattered, --depth);
+        }
+
 
     }else{
         // Background

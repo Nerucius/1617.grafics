@@ -3,14 +3,16 @@
 Lambertian::Lambertian(const vec3& diff):Material()
 {
     Kd = diff;
+    Ka = vec3(0);
+    Ks = vec3(0);
 }
 
-Lambertian::Lambertian(const vec3 &amb, const vec3 &diff, const vec3 &spec, float _as, float _alpha){
+Lambertian::Lambertian(const vec3 &amb, const vec3 &diff, const vec3 &spec, float shininess, float beta){
     Ka = amb;
     Kd = diff;
     Ks = spec;
-    beta = _as;
-    alpha = _alpha;
+    this->shininess = shininess;
+    this->beta = beta;
 }
 
 Lambertian::~Lambertian(){}

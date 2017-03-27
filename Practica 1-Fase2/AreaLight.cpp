@@ -31,7 +31,7 @@ AreaLight::AreaLight(const vec3& _pos,
         float cos_f = cos(angle * (M_PI/180.f));
 
         float x = pos.x + sin_f*radius;
-        float y = pos.y;
+        float y = pos.y + ( (drand48() -.5f) * 2*radius);
         float z = pos.z + cos_f*radius;
         points.push_back(new vec3(x,y,z));
     }
