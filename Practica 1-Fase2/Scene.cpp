@@ -4,9 +4,8 @@ Scene::Scene()
 {
     // creacio de la camera
     //vec3 lookfrom(0, 1.8, 25);
-    //vec3 lookfrom(13, 2, 3);
-    vec3 lookfrom(20, 10, 30);
-    vec3 lookat(0, 3.5, 0);
+    vec3 lookfrom(13, 2, 3);
+    vec3 lookat(0, 0, 0);
 
     float dist_to_focus = 10.0;
     float aperture = 0.1;
@@ -68,17 +67,16 @@ void Scene::RandomScene() {
     this->setAmbientLight( vec3(.01,.01,.01) );
 
     lights.push_back(new AreaLight(
-                         vec3(-6,30,30),
+                         vec3(2,8,10),
                          //0, 1,
                          1.f, 16, // Increase the 2nd number to soften shadow
-                         vec3( .2),
-                         vec3( .9),
+                         vec3( .4),
+                         vec3( .5),
                          vec3(1.),
                          vec3( .5, 0, .01))
                      );
 
-    // Materials
-
+    // Materials!
     Material* mirror = new Metallic(darkblue, black, vec3(.8), 10, 1, 0.05);
     Material* perfect_mirror = new Metallic(darkblue, black, vec3(.8), 10, 1, 0);
     Material* water = new Transparent(vec3(0), vec3(0), vec3(1), vec3(0.90), 1.33);
@@ -89,37 +87,40 @@ void Scene::RandomScene() {
     Material* green_matte = new Lambertian(darkgreen, green, darkgray, 5, 1);
     Material* black_metallic = new Metallic(black, darkgray, darkgray, 5, 1);
 
-    Material* sphere1 = new Lambertian(vec3(.2), vec3(.5), vec3(1), 10, 1);
-    Material* sphere2 = new Lambertian(vec3(.2), vec3(.8,.8,0), vec3(1), 10, 1);
-    Material* sphere3 = new Metallic(vec3(.2), vec3(.7,.6,.5), vec3(0.6), 10, 1, 0.2);
-    Material* sphere4 = new Transparent(vec3(0), vec3(0), vec3(1), vec3(.95), 1.33);
+    // Materials specified by the pdf
+    Material* gray_matte = new Lambertian(vec3(.2), vec3(.5), vec3(1), 10, 1);
+    Material* planet = new Lambertian(vec3(.2), vec3(.8,.8,0), vec3(.5), 10, 1);
+    Material* metallic = new Metallic(vec3(.2), vec3(.7,.6,.5), vec3(0.6), 10, 1, 0);
+    Material* bubble = new Transparent(vec3(0), vec3(0), vec3(1), vec3(.9), 1.33);
 
-    string filepath = string("../Practica 1/resources/peo1K.obj");
-    objects.push_back(new BoundaryObject(filepath, vec3(23, 7.8, 5), black_metallic));
 
-    objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), red_matte ) );
-    objects.push_back(new Plane(vec3(-7.5,0,0), vec3(1,0,0), perfect_mirror ) );
-    objects.push_back(new Plane(vec3(0,0,-7.5), vec3(0,0,1), perfect_mirror ) );
-
-    /*
     // Spheres
     // Planet Sphere
-    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, mirror));
+    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, planet));
 
     // Matte Spehere
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, red_matte));
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, gray_matte));
 
     // Metallic Spehere
-    objects.push_back(new Sphere(vec3(-3, 1, 1), 1, blue_matte));
+    objects.push_back(new Sphere(vec3(-3, 1, 1), 1, metallic));
 
     // Transparent Sphere
-    objects.push_back(new Sphere(vec3(0, .75, 0), 1, sphere4));
-    objects.push_back(new Sphere(vec3(0, .75, 0), -.97, sphere4));
+    objects.push_back(new Sphere(vec3(0, .75, 0), 1, bubble));
+    //objects.push_back(new Sphere(vec3(0, .75, 0), -.97, bubble));
 
 
     //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
     //objects.push_back(new Plane(vec3(-10,0,0), vec3(1,0,1), mirror ) );
     //objects.push_back(new Plane(vec3(0,0,-5), vec3(0,0,1), new Lambertian(lightgreen) ) );
+    /*
+
+    objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), red_matte ) );
+    objects.push_back(new Plane(vec3(-7.5,0,0), vec3(1,0,0), perfect_mirror ) );
+    objects.push_back(new Plane(vec3(0,0,-7.5), vec3(0,0,1), perfect_mirror ) );
+
+    string filepath = string("../Practica 1/resources/peo1K.obj");
+    objects.push_back(new BoundaryObject(filepath, vec3(23, 7.8, 5), black_metallic));
+
     vec3 v1 = vec3(0,0, 3);
     vec3 v2 = vec3(3,5, 1);
     vec3 v3 = vec3(6,0, -1);
@@ -219,7 +220,7 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
     }
 
     // Add global Ambient at the end
-    return color + globalIa;
+    return color + globalIa * mat->Ka;
 
 }
 
@@ -256,7 +257,6 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
 
 
     }else{
-        return vec3(.2);
         // Background
         float factor = (ray.direction.y + 2) * 0.5;
         vec3 bluefactor = vec3(0.5,0.7,1.) * factor;

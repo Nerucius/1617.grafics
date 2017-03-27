@@ -25,7 +25,7 @@ vector<vec2> AA_SAMPLES;
 int NUM_SAMPLES = 4;
 
 // LIGHT BOUNCES [0, ...]
-int REC_DEPTH = 4;
+int REC_DEPTH = 6;
 
 // Metode Render
 
