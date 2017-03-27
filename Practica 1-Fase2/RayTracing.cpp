@@ -25,7 +25,10 @@ vector<vec2> AA_SAMPLES;
 int NUM_SAMPLES = 4;
 
 // LIGHT BOUNCES [0, ...]
-int REC_DEPTH = 6;
+// PHONG aquesta variable a 0
+// REFLEXIO1 Aquesta variable a 1
+// DISTANCE Aquesta variable a 0,1,2
+int REC_DEPTH = 2;
 
 // Metode Render
 
@@ -75,12 +78,17 @@ void Render()
                 u += AA_SAMPLES[i].x;
                 v += AA_SAMPLES[i].y;
                 Ray r = scene->cam->getRay(u, v);
-                col += scene->ComputeColor(r, REC_DEPTH) / ((float)NUM_SAMPLES+1);
+                // DISTANCE ComputeColor -> ComputeColorDistance
+                col += scene->ComputeColorDistance(r, REC_DEPTH) / ((float)NUM_SAMPLES+1);
             }
 
 #ifdef GLUT
             float pixelX =  2*((x+0.5f)/scene->cam->viewportX)-1;
             float pixelY = 2*((y+0.5f)/scene->cam->viewportY)-1;
+
+            col.r = sqrt(col.r);
+            col.g = sqrt(col.g);
+            col.b = sqrt(col.b);
 
              glColor3f(col[0], col[1], col[2]);
              glVertex3f(pixelX, pixelY, 0.0f);
@@ -138,7 +146,8 @@ void Render_omp(){
                 u += AA_SAMPLES[i].x;
                 v += AA_SAMPLES[i].y;
                 Ray r = scene->cam->getRay(u, v);
-                *col += scene->ComputeColor(r, REC_DEPTH) / ((float)NUM_SAMPLES+1);
+                // DISTANCE ComputeColor -> ComputeColorDistance
+                *col += scene->ComputeColorDistance(r, REC_DEPTH) / ((float)NUM_SAMPLES+1);
             }
          }
       }

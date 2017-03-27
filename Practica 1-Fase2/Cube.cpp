@@ -74,8 +74,8 @@ bool Cube::hit(const Ray& r, float t_min, float t_max, HitInfo& info) const {
         info.p = r.origin + (r.direction * tmin);
         info.mat_ptr = material;
 
-
         // Detect face normal
+        // Positive Sides
         if(equals(info.p.x, bmax.x, 0.001))
                 info.normal = vec3(1,0,0);
 
@@ -84,6 +84,16 @@ bool Cube::hit(const Ray& r, float t_min, float t_max, HitInfo& info) const {
 
         if(equals(info.p.z, bmax.z, 0.001))
                 info.normal = vec3(0,0,1);
+
+        // Negative Sides
+        if(equals(info.p.x, bmin.x, 0.001))
+                info.normal = vec3(-1,0,0);
+
+        if(equals(info.p.y, bmin.y, 0.001))
+                info.normal = vec3(0,-1,0);
+
+        if(equals(info.p.z, bmin.z, 0.001))
+                info.normal = vec3(0,0,-1);
 
 
         return true;

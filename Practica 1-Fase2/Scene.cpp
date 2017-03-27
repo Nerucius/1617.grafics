@@ -17,8 +17,8 @@ Scene::Scene()
 
     globalIa = vec3(.01, .01, .01);
 
-   // TODO: Cal crear els objectes de l'escena
-    RandomScene();
+    //RandomScene();
+    this->InitScene();
 
     // TODO: Cal afegir llums a l'escena (Fase 2)
    }
@@ -40,8 +40,77 @@ Scene::~Scene()
     delete cam;
 }
 
-// TODO: Metode que genera una escena random de numObjects de tipus esfera, a diferents posicions,
-// amb diferents radis i diferents materials. S'usa drand48 per generar numeros random
+void Scene::InitScene(){
+    this->cam = new Camera(vec3(-20,5,20), vec3(0), vec3(0,1,0), 20,600,300,.1,100);
+    this->setAmbientLight(vec3(.2));
+
+    // lights
+    lights.push_back(new PointLight(
+                         vec3(0,5,0),
+                         vec3(.2),
+                         vec3( .5),
+                         vec3( .4),
+                         vec3(0))
+                     );
+
+    // Materials
+    Material* blue_metallic = new Metallic(vec3(.1), vec3(0,0,1), vec3(.4), 75, 1);
+    Material* green_metallic = new Metallic(vec3(.1), vec3(0,1,0), vec3(.4), 75, 1);
+    Material* red_metallic = new Metallic(vec3(.1), vec3(1,0,0), vec3(.4), 75, 1);
+
+    Material* white_matte = new Lambertian(vec3(.1), vec3(1), vec3(0), 5, 1);
+    Material* red_matte = new Lambertian(vec3(.1), vec3(1,0,0), vec3(0), 5, 1);
+
+    Material* transparent = new Transparent(vec3(.1), vec3(0), vec3(.8), vec3(.4), 1.75);
+
+    objects.push_back(new Plane(vec3(3,0,0), vec3(-1,0,0), blue_metallic ) );
+    objects.push_back(new Plane(vec3(0,-3,0), vec3(0,1,0), white_matte ) );
+    objects.push_back(new Plane(vec3(0,0,-3), vec3(0,0,1), green_metallic ) );
+
+    objects.push_back(new Triangle( vec3(-2,-1,0), vec3(0,2,0), vec3(2,-1,0), red_matte ));
+
+    objects.push_back(new Sphere(vec3(0, 0, 5), 1, transparent));
+
+    objects.push_back(new Cube(vec3(-4,-4,4), vec3(-2,1,6), red_metallic));
+
+
+//    // Spheres
+//    // Planet Sphere
+//    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, planet));
+
+//    // Matte Spehere
+//    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, gray_matte));
+
+//    // Metallic Spehere
+//    objects.push_back(new Sphere(vec3(-3, 1, 1), 1, metallic));
+
+//    // Transparent Sphere
+//    objects.push_back(new Sphere(vec3(0, .75, 0), 1, bubble));
+//    //objects.push_back(new Sphere(vec3(0, .75, 0), -.97, bubble));
+
+
+    //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
+    //objects.push_back(new Plane(vec3(-10,0,0), vec3(1,0,1), mirror ) );
+    //objects.push_back(new Plane(vec3(0,0,-5), vec3(0,0,1), new Lambertian(lightgreen) ) );
+    /*
+
+    objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), red_matte ) );
+    objects.push_back(new Plane(vec3(-7.5,0,0), vec3(1,0,0), perfect_mirror ) );
+    objects.push_back(new Plane(vec3(0,0,-7.5), vec3(0,0,1), perfect_mirror ) );
+
+    string filepath = string("../Practica 1/resources/peo1K.obj");
+    objects.push_back(new BoundaryObject(filepath, vec3(23, 7.8, 5), black_metallic));
+
+    vec3 v1 = vec3(0,0, 3);
+    vec3 v2 = vec3(3,5, 1);
+    vec3 v3 = vec3(6,0, -1);
+    objects.push_back(new Triangle(v1,v2,v3, new Lambertian(lightgreen) ) );
+    */
+    //string filepath = string("../Practica 1/resources/peo1K.obj");
+    //objects.push_back(new BoundaryObject(filepath, vec3(23, 7.8, 5), gray_shinny));
+    //*/
+
+}
 
 void Scene::RandomScene() {
     // Colors!
@@ -198,14 +267,22 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
         // Light Visibility Calculation (hard / soft shadwos)
         // How much of the light reaches the object.
         float shade = 1;
-        if(shadow)
+        if(shadow){
             shade = l->visible(this, point);
+            // OMBRES la seguent linea
+            // REFLEXIO1 la seguent linea
+            //if(shade < 0.9) return vec3(1,0,0);
+        }
+
+        // REFLEXIO1 la seguent linia
+        //return mat->Kd;
 
         // Surface -> Light
         vec3 L = (l->pos - point);
         // Attenuation factor
         float d2 = L.x * L.x + L.y * L.y + L.z + L.z;
-        float attf = 1. / (l->coef.x + l->coef.y * 0 + l->coef.z * d2);
+        float attf = 1.f / (l->coef.x + l->coef.y * 0 + l->coef.z * d2);
+        attf = attf > 1 ? 1 : attf;
 
         L = normalize(L);
 
@@ -228,23 +305,22 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
  * Computes the color output of a given Ray, bouncing the light `depth` times.
  */
 vec3 Scene::ComputeColor (Ray &ray, int depth ) {
-    //depth = 2;
-    //depth = depth < 1 ? 1 : depth;
-
     vec3 color;
     // Define near and far planes
     float t_min = 0.01;
     float t_max = 50;
     HitInfo* info = new HitInfo;
 
-    /* TODO: Canviar aquesta assignacio pel color basat amb la il.luminacio basada amb Phong-Blinn segons
-     * el material de l'objecte i les llums per la fase 2 de la practica
-     * En aquestesta fase 2,  cal fer que tambe es tinguin en compte els rebots de les reflexions.
-     */
 
     if(Scene::hit(ray, t_min, t_max, *info)){
         // Impact with scene object. calculate lighting
+        // PHONG el ultim parametre a false
+        // OMBRES el ultim parametre a true
         color = this->BlinnPhong(info->p, info->normal, info->mat_ptr, true);
+
+        // REFLEXIO1 el seguent bloc
+        //if(color.r > 0.999 && color.g < .001 && color.b < .001)
+        //    return color;
 
         vec3 KColor;
         Ray scattered;
@@ -252,7 +328,10 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
         vec3 inverseKt = (vec3(1.f) - info->mat_ptr->Kt);
 
         if (depth > 0){
-            color = inverseKt * color + KColor * this->ComputeColor(scattered, --depth);
+            color = inverseKt * color + KColor * this->ComputeColor(scattered, depth-1);
+
+            // REFLEXIO1 la seguent linea
+            //color = this->ComputeColor(scattered, 0);
         }
 
 
@@ -265,6 +344,34 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
     }
 
     return color;
+}
+
+vec3 Scene::ComputeColorDistance(Ray &ray, int depth){
+    // DISTANCE
+    vec3 color;
+    // Define near and far planes
+    float t_min = 0.01;
+    float t_max = 50;
+    HitInfo* info = new HitInfo;
+
+
+    if(Scene::hit(ray, t_min, t_max, *info)){
+
+        float distance = length(info->p - ray.origin);
+        color = 2.f * (vec3(1) / (1+distance));
+
+        vec3 KColor;
+        Ray scattered;
+        info->mat_ptr->scatter(ray, *info, KColor, scattered);
+
+        if (depth > 0){
+            color = color * 2.f * this->ComputeColorDistance(scattered, depth-1);
+        }
+
+        return color;
+    }
+
+    return vec3(.2);
 }
 
 
