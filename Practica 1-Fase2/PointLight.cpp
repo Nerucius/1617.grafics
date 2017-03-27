@@ -26,7 +26,7 @@ float PointLight::visible(Scene* scene, const vec3& pos){
 
     /* We are setting the tmax param as 1 to make the detection range the
      * same as the distance to the light. */
-    if(scene->hit(r, 0.01, 1, info)){
+    if(scene->hit_fast(r, 0.01, 1, info)){
         return 0;
     }
 

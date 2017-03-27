@@ -34,6 +34,7 @@ public:
     // del punt d'interseccio més proper a t_min, punt que està entre t_min i t_max.
     // Retorna cert si existeix la interseccio, fals, en cas contrari
     virtual bool hit(const Ray& r, float t_min, float t_max, HitInfo& info) const;
+    virtual bool hit_fast(const Ray& r, float t_min, float t_max, HitInfo& info) const;
 
     // Funcio recursiva que calcula el color. Inicialment es
     // es crida a cada pixel. Tambe es crida en calcular les ombres o les reflexions.

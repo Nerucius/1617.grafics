@@ -48,7 +48,7 @@ float AreaLight::visible(Scene* scene, const vec3& pos){
     for(vec3* light : points){
         r.origin = pos;
         r.direction = *light - pos;
-        if(!scene->hit(r, 0.01, 1, info)){
+        if(!scene->hit_fast(r, 0.01, 1, info)){
             visibility += val_per_light;
         }
     }

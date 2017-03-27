@@ -21,9 +21,10 @@ Metallic::Metallic(const vec3 &amb, const vec3 &diff, const vec3 &spec, float sh
     Ka = amb;
     Kd = diff;
     Ks = spec;
+    Kt = vec3(1) - Ks;
     this->shininess = shininess;
     this->beta = beta;
-    this->fuzzy = 0;;
+    this->fuzzy = fuzzy;
 }
 
 Metallic::~Metallic(){}

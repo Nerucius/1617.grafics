@@ -15,17 +15,17 @@ Transparent::~Transparent(){}
 
 bool Transparent::scatter(const Ray& r_in, const HitInfo& rec, vec3& color, Ray& scattered) const  {
     // Use air's n as a constant
-    float nfactor = 1.0003 / n;
+    float nratio = 1.0003 / n;
 
     vec3 N = normalize(rec.normal);
     vec3 I = normalize(r_in.direction);
     // Flip Normal and n ratio when going through face from behind
     if(dot(I , N) > 0 ){
         N = -N;
-        nfactor = 1./nfactor;
+        nratio = 1./nratio;
     }
 
-    vec3 R = refract(I, N, nfactor);
+    vec3 R = refract(I, N, nratio);
     scattered = Ray(rec.p, R);
     color = Kt;
 

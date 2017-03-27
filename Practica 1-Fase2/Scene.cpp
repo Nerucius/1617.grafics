@@ -4,8 +4,9 @@ Scene::Scene()
 {
     // creacio de la camera
     //vec3 lookfrom(0, 1.8, 25);
-    vec3 lookfrom(13, 2, 3);
-    vec3 lookat(0, 0, 0);
+    //vec3 lookfrom(13, 2, 3);
+    vec3 lookfrom(20, 10, 30);
+    vec3 lookat(0, 3.5, 0);
 
     float dist_to_focus = 10.0;
     float aperture = 0.1;
@@ -67,60 +68,58 @@ void Scene::RandomScene() {
     this->setAmbientLight( vec3(.01,.01,.01) );
 
     lights.push_back(new AreaLight(
-                         vec3(2,8,10),
-                         0, 1,
-                         //1.5f, 64, // Increase the 2nd number to soften shadow
-                         vec3( .4),
-                         vec3( .5),
+                         vec3(-6,30,30),
+                         //0, 1,
+                         1.f, 16, // Increase the 2nd number to soften shadow
+                         vec3( .2),
+                         vec3( .9),
                          vec3(1.),
                          vec3( .5, 0, .01))
                      );
 
-//    lights.push_back(new PointLight(
-//                         //cam->origin,
-//                         vec3( -4,  12, 10),
-//                         vec3(.1),
-//                         vec3(.8),
-//                         vec3(1),
-//                         vec3(.5, .0,.01))
-//                     );
+    // Materials
 
+    Material* mirror = new Metallic(darkblue, black, vec3(.8), 10, 1, 0.05);
+    Material* perfect_mirror = new Metallic(darkblue, black, vec3(.8), 10, 1, 0);
+    Material* water = new Transparent(vec3(0), vec3(0), vec3(1), vec3(0.90), 1.33);
+    Material* diamond = new Transparent(vec3(0), vec3(0), vec3(1), vec3(0.99), 2.43);
+    Material* blue_matte = new Lambertian(darkblue, blue, darkgray, 5, 1);
+    Material* red_matte = new Lambertian(darkred, red, darkgray, 5, 1);
+    Material* yellow_matte = new Lambertian(darkred, yellow, darkgray, 5, 1);
+    Material* green_matte = new Lambertian(darkgreen, green, darkgray, 5, 1);
+    Material* black_metallic = new Metallic(black, darkgray, darkgray, 5, 1);
 
-
-    // Spheres
-//    Material* gray_shiny = new Metallic(darkgray, gray, white, 50, 1);
-//    Material* gold = new Metallic(yellow, red, yellow, 100, 1);
-    Material* mirror = new Metallic(black, black, white, 10, 1);
-    Material* water = new Transparent(vec3(0), vec3(0), vec3(1), vec3(0.95), 5);
-    Material* red_matte = new Lambertian(darkred, blue, darkgray, 5, 1);
-    Material* blue_matte = new Lambertian(darkblue, red, darkgray, 5, 1);
-
-    //objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, red_matte));
-    //objects.push_back(new Sphere(vec3(-3, 1, 1), 1, blue_matte));
-
-
-    // Planet Sphere
+    Material* sphere1 = new Lambertian(vec3(.2), vec3(.5), vec3(1), 10, 1);
     Material* sphere2 = new Lambertian(vec3(.2), vec3(.8,.8,0), vec3(1), 10, 1);
-    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, sphere2));
+    Material* sphere3 = new Metallic(vec3(.2), vec3(.7,.6,.5), vec3(0.6), 10, 1, 0.2);
+    Material* sphere4 = new Transparent(vec3(0), vec3(0), vec3(1), vec3(.95), 1.33);
+
+    string filepath = string("../Practica 1/resources/peo1K.obj");
+    objects.push_back(new BoundaryObject(filepath, vec3(23, 7.8, 5), black_metallic));
+
+    objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), red_matte ) );
+    objects.push_back(new Plane(vec3(-7.5,0,0), vec3(1,0,0), perfect_mirror ) );
+    objects.push_back(new Plane(vec3(0,0,-7.5), vec3(0,0,1), perfect_mirror ) );
+
+    /*
+    // Spheres
+    // Planet Sphere
+    objects.push_back(new Sphere(vec3(0, -100.5, -1), 100, mirror));
 
     // Matte Spehere
-    Material* sphere1 = new Lambertian(vec3(.2), vec3(.5), vec3(1), 10, 1);
-    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, sphere1));
+    objects.push_back(new Sphere(vec3(0, 0, -1), 0.5, red_matte));
 
     // Metallic Spehere
-    Material* sphere3 = new Metallic(vec3(.2), vec3(.7,.6,.5), vec3(.7), 10, 1);
-    objects.push_back(new Sphere(vec3(-3, 1, 1), 1, sphere3));
+    objects.push_back(new Sphere(vec3(-3, 1, 1), 1, blue_matte));
 
     // Transparent Sphere
-    Material* sphere4 = new Transparent(vec3(0), vec3(0), vec3(1), vec3(.95), 1.33);
-    objects.push_back(new Sphere(vec3(0, 1, 0), 1, sphere4));
-    objects.push_back(new Sphere(vec3(0, 1, 0), -.97, sphere4));
+    objects.push_back(new Sphere(vec3(0, .75, 0), 1, sphere4));
+    objects.push_back(new Sphere(vec3(0, .75, 0), -.97, sphere4));
 
 
     //objects.push_back(new Plane(vec3(0,0,0), vec3(0,1,0), new Lambertian(lightblue) ) );
     //objects.push_back(new Plane(vec3(-10,0,0), vec3(1,0,1), mirror ) );
     //objects.push_back(new Plane(vec3(0,0,-5), vec3(0,0,1), new Lambertian(lightgreen) ) );
-    /*
     vec3 v1 = vec3(0,0, 3);
     vec3 v2 = vec3(3,5, 1);
     vec3 v3 = vec3(6,0, -1);
@@ -136,14 +135,9 @@ void Scene::setAmbientLight(const vec3& color){
     this->globalIa = color;
 }
 
-/*
-** TODO: Metode que testeja la interseccio contra tots els objectes de l'escena (Fase 1)
-**
-** Si un objecte es intersecat pel raig, el parametre  de tipus IntersectInfo conte
-** la informació sobre la interesccio.
-** El metode retorna true si algun objecte es intersecat o false en cas contrari.
-**
-*/
+/**
+ *  Intersects a ray with all objects of the scene, and returns the closest intersection, if any.
+ */
 bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const {
     // TODO: Heu de codificar la vostra solucio per aquest metode substituint el 'return true'
     // Una possible solucio es cridar el mètode hit per a tots els objectes i quedar-se amb la interseccio
@@ -176,8 +170,21 @@ bool Scene::hit(const Ray& raig, float t_min, float t_max, HitInfo& info) const 
     return false;
 }
 
+/** Returns true for any intersections. Used for shadows. */
+bool Scene::hit_fast(const Ray& ray, float t_min, float t_max, HitInfo& info) const{
+    for (uint i = 0; i < objects.size(); i++){
+        Hitable* obj = objects[i];
 
+        if (obj->hit(ray, t_min, t_max, info)){
+            return true;
+        }
+    }
+    return false;
+}
 
+/**
+ * Computes the color of a single point on a surface, taking into the account the scene's lights.
+ */
 vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
     vec3 color;
 
@@ -188,9 +195,10 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
     for(Light* l : lights){
 
         // Light Visibility Calculation (hard / soft shadwos)
-        float lFactor = 1;
+        // How much of the light reaches the object.
+        float shade = 1;
         if(shadow)
-            lFactor = l->visible(this, point);
+            shade = l->visible(this, point);
 
         // Surface -> Light
         vec3 L = (l->pos - point);
@@ -203,9 +211,9 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
         // Half vector between light->cam and pos->cam
         vec3 H = normalize(L + V);
 
-        vec3 La = (mat->Ka * l->Ia) * lFactor;
-        vec3 Ld = (mat->Kd * l->Id * (dot(L, N))) * attf * lFactor;
-        vec3 Ls = (mat->Ks * l->Is * pow(dot(N, H), mat->beta)) * attf * lFactor;
+        vec3 La = (mat->Ka * l->Ia) ;
+        vec3 Ld = (mat->Kd * l->Id * (dot(L, N))) * attf * shade;
+        vec3 Ls = (mat->Ks * l->Is * pow(dot(N, H), mat->beta)) * attf * shade;
 
         color = La + Ld + Ls;
     }
@@ -215,14 +223,9 @@ vec3 Scene::BlinnPhong(vec3 point, vec3 N, const Material* mat, bool shadow){
 
 }
 
-/*
-** TODO: Funcio ComputeColor es la funcio recursiva del RayTracing.
-** A modificar en la Fase 2 de l'enunciat per incloure Blinn-Phong  i ombres
-** A modificar en la Fase 2 per a tractar reflexions
-**
-*/
-
-
+/**
+ * Computes the color output of a given Ray, bouncing the light `depth` times.
+ */
 vec3 Scene::ComputeColor (Ray &ray, int depth ) {
     //depth = 2;
     //depth = depth < 1 ? 1 : depth;
@@ -253,6 +256,7 @@ vec3 Scene::ComputeColor (Ray &ray, int depth ) {
 
 
     }else{
+        return vec3(.2);
         // Background
         float factor = (ray.direction.y + 2) * 0.5;
         vec3 bluefactor = vec3(0.5,0.7,1.) * factor;
