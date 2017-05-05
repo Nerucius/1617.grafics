@@ -7,6 +7,7 @@
 #include <QtWidgets>
 #include <QGLWidget>
 #include <QTime>
+#include "Material.h"
 
 #define PROGRAM_VERTEX_ATTRIBUTE 0
 #define PROGRAM_COLOR_ATTRIBUTE 1

@@ -6,22 +6,20 @@
  * @param npoints
  * @param parent
  */
-Object::Object(int npoints, QObject *parent) : QObject(parent){
+Object::Object(int npoints, QObject *parent, Material* mat) : QObject(parent){
     numPoints = npoints;
     points = new point4[numPoints];
     normals= new point4[numPoints];
-    colors = new point4[numPoints];
+
+    this->material = mat;
+
  }
 
-/**
- * @brief Object::Object
- * @param npoints
- * @param n
- */
-Object::Object(int npoints, QString n) : numPoints(npoints){
+Object::Object(int npoints, QString n, Material* mat) : numPoints(npoints){
     points = new point4[numPoints];
     normals= new point4[numPoints];
-    colors = new point4[numPoints];
+
+    this->material = mat;
 
     readObj(n);
     make();
@@ -34,7 +32,6 @@ Object::Object(int npoints, QString n) : numPoints(npoints){
 Object::~Object(){
     delete points;
     delete normals;
-    delete colors;
 }
 
 /**
@@ -49,7 +46,14 @@ void Object::toGPU(QGLShaderProgram *pr) {
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
 
-    glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index + sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
+    //glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index + sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
+
+    // TODO: Test this ( removed space for color data)
+    glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
+
+    // TODO maybe it goes here?
+    material->toGPU(pr);
+
     glEnable( GL_DEPTH_TEST );
 
 }
@@ -67,16 +71,14 @@ void Object::draw(){
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
 
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4)*Index, &points[0] );
-    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4)*Index, sizeof(point4)*Index, &colors[0] );
 
     int vertexLocation = program->attributeLocation("vPosition");
-    int colorLocation = program->attributeLocation("vColor");
 
     program->enableAttributeArray(vertexLocation);
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
 
-    program->enableAttributeArray(colorLocation);
-    program->setAttributeBuffer("vColor", GL_FLOAT, sizeof(point4)*Index, 4);
+    // TODO Check if this goes here
+    //material->toGPU(program);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawArrays( GL_TRIANGLES, 0, Index );
@@ -101,7 +103,7 @@ void Object::make(){
     for(unsigned int i=0; i<cares.size(); i++){
         for(unsigned int j=0; j<cares[i].idxVertices.size(); j++){
             points[Index] = vertexs[cares[i].idxVertices[j]];
-            colors[Index] = vec4(base_colors[j%4], 1.0);
+            //colors[Index] = vec4(base_colors[j%4], 1.0);
             Index++;
         }
     }

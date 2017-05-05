@@ -226,7 +226,10 @@ void GLWidget::initShader(const char* vShaderFile, const char* fShaderFile){
  * @brief GLWidget::initShadersGPU
  */
 void GLWidget::initShadersGPU(){
-    initShader("://resources/vshader1.glsl", "://resources/fshader1.glsl");
+    //initShader("://resources/vshader1.glsl", "://resources/fshader1.glsl");
+
+    // TODO: Test if this loads the shader correctly
+    initShader("://resources/matvshader1.glsl", "://resources/matfshader1.glsl");
 }
 
 QSize GLWidget::minimumSizeHint() const {
@@ -275,7 +278,10 @@ void GLWidget::resizeGL(int width, int height) {
 
 void GLWidget::newObj(QString fichero){
     qDebug() << fichero;
-    Object * obj = new Object(100000, fichero);
+
+    Material* mat = new Material( vec3(0,0,0), vec3(1,0,0), vec3(0,0,0), 1.f);
+    Object * obj = new Object(100000, fichero, mat);
+
     obj->toGPU(program);
     scene->addObject(obj);
     camera->actualitzaCamera(scene->capsaMinima);

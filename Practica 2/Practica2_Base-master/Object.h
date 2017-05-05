@@ -7,6 +7,7 @@
 #include <cara.h>
 #include <QGLShaderProgram>
 #include <QOpenGLTexture>
+#include "Material.h"
 
 using namespace std;
 
@@ -27,17 +28,14 @@ protected:
     point4 *points;
     point4 *normals;
 
-    // Els colors s'usen en la primera execució però després son prescindibles
-    point4 *colors;
-
     int Index; // index de control del numero de vertexs a passar a la GPU
 
     QGLShaderProgram *program;
 
 public:
 
-    Object(const int npoints, QObject *parent = 0);
-    Object(const int npoints, QString n);
+    Object(const int npoints, QObject *parent = 0, Material* material = 0);
+    Object(const int npoints, QString n, Material* material);
     ~Object();
 
     virtual void readObj(QString filename);
@@ -50,6 +48,8 @@ public:
     virtual void drawTexture();
 
     Capsa3D calculCapsa3D();
+
+    Material* material;
 
 private:
 
