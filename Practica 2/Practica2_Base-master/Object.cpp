@@ -51,9 +51,6 @@ void Object::toGPU(QGLShaderProgram *pr) {
     // TODO: Test this ( removed space for color data)
     glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
 
-    // TODO maybe it goes here?
-    material->toGPU(pr);
-
     glEnable( GL_DEPTH_TEST );
 
 }
@@ -77,8 +74,8 @@ void Object::draw(){
     program->enableAttributeArray(vertexLocation);
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
 
-    // TODO Check if this goes here
-    //material->toGPU(program);
+    // Send Material attributes to GPU
+    material->toGPU(program);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glDrawArrays( GL_TRIANGLES, 0, Index );

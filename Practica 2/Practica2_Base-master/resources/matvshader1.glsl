@@ -6,14 +6,14 @@
 #define OUT out
 #endif
 
-struct mat_spec{
+struct Material{
     vec3 ka;
     vec3 kd;
     vec3 ks;
     float shine;
 };
 
-uniform mat_spec mat;
+uniform Material mat;
 
 IN vec4 vPosition;
 OUT vec4 color;
@@ -22,8 +22,6 @@ void main()
 {
     gl_Position = vPosition;
 
-    color.r = mat.kd.r;
-    color.g = mat.kd.g;
-    color.b = mat.kd.b;
+    color.rgb = mat.kd.rgb;
     color.a = 1;
 }
