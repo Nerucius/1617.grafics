@@ -43,13 +43,12 @@ void Object::toGPU(QGLShaderProgram *pr) {
     // Cal passar les normals
 
     program = pr;
+
+    // Vertex Pos Buffer
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
-
     //glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index + sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
-
-    // TODO: Test this ( removed space for color data)
-    glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index + sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
 
     glEnable( GL_DEPTH_TEST );
 
@@ -66,13 +65,17 @@ void Object::draw(){
 
     // Aqui es torna a repetir el pas de dades a la GPU per si hi ha més d'un objecte
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
-
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4)*Index, &points[0] );
-
     int vertexLocation = program->attributeLocation("vPosition");
-
     program->enableAttributeArray(vertexLocation);
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
+
+    // Activar Normals
+    glBufferSubData( GL_ARRAY_BUFFER, sizeof(point4)*Index, sizeof(point4)*Index, &normals[0] );
+    int normalLocation = program->attributeLocation("vNormal");
+    program->enableAttributeArray(normalLocation);
+    program->setAttributeBuffer("vNormal", GL_FLOAT, 0, 4);
+
 
     // Send Material attributes to GPU
     material->toGPU(program);
@@ -100,6 +103,7 @@ void Object::make(){
     for(unsigned int i=0; i<cares.size(); i++){
         for(unsigned int j=0; j<cares[i].idxVertices.size(); j++){
             points[Index] = vertexs[cares[i].idxVertices[j]];
+            normals[Index] = vNormals[cares[i].idxVertices[j]];
             //colors[Index] = vec4(base_colors[j%4], 1.0);
             Index++;
         }
@@ -184,6 +188,8 @@ void Object::readObj(QString filename){
 
             if (!strcmp (first_word, "v"))
             {
+                // VERTEX COORDINATES
+
                 if (nwords < 4) {
                     fprintf (stderr, "Too few coordinates: '%s'", ReadFile::str_orig);
                     exit (-1);
@@ -208,6 +214,29 @@ void Object::readObj(QString filename){
 
             }
             else if (!strcmp (first_word, "vn")) {
+                // VERTEX NORMALS
+
+                if (nwords < 4) {
+                    fprintf (stderr, "Too few coordinates: '%s'", ReadFile::str_orig);
+                    exit (-1);
+                }
+
+                QString sx(ReadFile::words[1]);
+                QString sy(ReadFile::words[2]);
+                QString sz(ReadFile::words[3]);
+                double x = sx.toDouble();
+                double y = sy.toDouble();
+                double z = sz.toDouble();
+
+                if (nwords == 5) {
+                    QString sw(ReadFile::words[4]);
+                    double w = sw.toDouble();
+                    x/=w;
+                    y/=w;
+                    z/=w;
+                }
+                // S'afegeix el vertex a l'Object
+                vNormals.push_back(point4(x, y, z, 0));
 
             }
             else if (!strcmp (first_word, "vt")) {

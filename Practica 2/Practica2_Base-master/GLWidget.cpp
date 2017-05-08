@@ -279,7 +279,7 @@ void GLWidget::resizeGL(int width, int height) {
 void GLWidget::newObj(QString fichero){
     qDebug() << fichero;
 
-    Material* mat = new Material( vec3(0,0,0), vec3(0,.8,0), vec3(0,0,0), 1.f);
+    Material* mat = new Material( vec3(0.,0.1,0.), vec3(0,.8,0), vec3(0,0,0), 1.f);
     Object * obj = new Object(100000, fichero, mat);
 
     obj->toGPU(program);
