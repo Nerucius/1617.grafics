@@ -9,7 +9,7 @@ Scene::Scene() {
     capsaMinima.a = 2;
     capsaMinima.h = 2;
     capsaMinima.p = 2;
-    lightAmbientGlobal = vec3(0.2, 0.2, 0.2);
+    lightAmbientGlobal = vec3(0.08, 0.05, 0.05);
 }
 
 /**
@@ -66,13 +66,13 @@ void Scene::setLightActual(Light* l){
 }
 
 
-
 /**
  * @brief Scene::lightsToGPU
  * @param program
  */
 void Scene::lightsToGPU(QGLShaderProgram *program){
 // TO DO: A implementar a la fase 1 de la practica 2
+
 
 }
 
@@ -87,6 +87,10 @@ void Scene::addLight(Light *l) {
  */
 void Scene::setAmbientToGPU(QGLShaderProgram *program){
     // TO DO: A implementar a la fase 1 de la practica 2
+
+    GLint ambientLocation = program->uniformLocation("ambientLight");
+    glUniform3fv(ambientLocation, 1, this->lightAmbientGlobal);
+
 
 }
 
