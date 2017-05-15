@@ -34,6 +34,14 @@ class Light {
         LightType getTipusLight() const;
         void setTipusLight(const LightType &value);
 
+    private:
+        vec4 pos = vec4(0,0,0,1);
+        vec3 ia, id, is;
+        vec3 coef = vec3(0);
+        bool active = true;
+        LightType type = Puntual;
+
+
 
 };
 

@@ -5,21 +5,14 @@
  * @param t
  */
 Light::Light(LightType t) {
-
-
 }
-
-
-
 
 /**
  * @brief Light::getDiffuseIntensity
  * @return
  */
 vec3 Light::getDiffuseIntensity() {
-// TO DO: A canviar a la fase 1 de la practica 2
-
-   return(vec3(1.0, 1.0, 1.0));
+    return this->id;
 }
 
 /**
@@ -27,129 +20,68 @@ vec3 Light::getDiffuseIntensity() {
  * @param i
  */
 void Light::setDiffuseIntensity(vec3 i) {
-    // TO DO: A canviar a la fase 1 de la practica 2
-    // el float que es reb ha de multiplicar els tres valors de la intensitat difusa de la Light
-
+    this->id = i;
 }
 vec4 Light::getLightPosition() {
-    // A canviar
-    return(vec4(0.0, 0.0, 0.0, 0.0));
+    return this->pos;
 }
 
 void Light::setLightPosition(vec4 v) {
-
+    this->pos = v;
 }
 
-/**
- * @brief Light::switchOnOff
- */
 void Light::switchOnOff() {
-    // TO DO: A canviar a la fase 1 de la practica 2
-    // Si esta en on la posa a off i a l'inreves
+    this->active = !this->active;
  }
 
-/**
- * @brief Light::getIa
- * @return
- */
-vec3 Light::getIa() const
-{
-    // TO DO: A canviar a la fase 1 de la practica 2
-
-       return(vec3(1.0, 1.0, 1.0));
+vec3 Light::getIa() const {
+    return this->ia;
 }
 
-/**
- * @brief Light::setIa
- * @param value
- */
-void Light::setIa(const vec3 &value)
-{
-    // TO DO: A canviar a la fase 1 de la practica 2
-    // el float que es reb ha de multiplicar els tres valors de la intensitat difusa de la Light
+void Light::setIa(const vec3 &value) {
+    this->ia = value;
+}
 
+vec3 Light::getId() const {
+    return this->id;
 }
 
 
-
-/**
- * @brief Light::getIs
- * @return
- */
-vec3 Light::getIs() const
-{
-    // TO DO: A canviar a la fase 1 de la practica 2
-
-       return(vec3(1.0, 1.0, 1.0));
+void Light::setId(const vec3 &value) {
+    this->id = value;
 }
 
-/**
- * @brief Light::setIs
- * @param value
- */
-void Light::setIs(const vec3 &value)
-{
-    // TO DO: A canviar a la fase 1 de la practica 2
-    // el float que es reb ha de multiplicar els tres valors de la intensitat difusa de la Light
-
+vec3 Light::getIs() const {
+       return this->is;
 }
 
-/**
- * @brief Light::getCoeficients
- * @return
- */
-vec3 Light::getCoeficients() const
-{
-    // TO DO: A canviar a la fase 1 de la practica 2
-
-       return(vec3(1.0, 1.0, 1.0));
+void Light::setIs(const vec3 &value) {
+    this->is = value;
 }
 
-/**
- * @brief Light::setCoeficients
- * @param value
- */
-void Light::setCoeficients(const vec3 &value)
-{
-    // TO DO: A canviar a la fase 1 de la practica 2
-    // el float que es reb ha de multiplicar els tres valors de la intensitat difusa de la Light
-
+vec3 Light::getCoeficients() const {
+    return this->coef;
 }
 
-/**
- * @brief Light::getEstaActivat
- * @return
- */
-bool Light::getEstaActivat() const
-{
+void Light::setCoeficients(const vec3 &value) {
     // TO DO: A canviar a la fase 1 de la practica 2
-
-       return(true);
+    // el float que es rep ha de multiplicar els tres valors de la intensitat difusa de la Light
+    this->coef = value;
 }
 
-/**
- * @brief Light::setEstaActivat
- * @param value
- */
-void Light::setEstaActivat(bool value)
-{
-    // TO DO: A canviar a la fase 1 de la practica 2
-
+bool Light::getEstaActivat() const {
+    return this->active;
 }
 
-/**
- * @brief Light::getTipusLight
- *
- */
-LightType Light::getTipusLight() const
-{
+void Light::setEstaActivat(bool value){
+    this->active = value;
+}
+
+LightType Light::getTipusLight() const {
     // TO DO: A canviar a la fase 1 de la practica 2
     return Puntual;
 }
-/**
- * @brief Light::setTipusLight
- * @param value
- */
+
 void Light::setTipusLight(const LightType &value)
 {
     // TO DO: A canviar a la fase 1 de la practica 2

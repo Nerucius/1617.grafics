@@ -91,7 +91,6 @@ void Scene::setAmbientToGPU(QGLShaderProgram *program){
     GLint ambientLocation = program->uniformLocation("ambientLight");
     glUniform3fv(ambientLocation, 1, this->lightAmbientGlobal);
 
-
 }
 
 
