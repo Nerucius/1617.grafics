@@ -1,78 +1,91 @@
 #include "Scene.h"
 
-/**
- * @brief Scene::Scene
- */
 Scene::Scene() {
     // Inicialització de la capsa minima
     capsaMinima.pmin = vec3(-1.0, -1.0,-1.0);
     capsaMinima.a = 2;
     capsaMinima.h = 2;
     capsaMinima.p = 2;
+
+
     lightAmbientGlobal = vec3(0.08, 0.05, 0.05);
+    Light* l = new Light(Puntual);
+    l->setPosition(vec4(1,1,0,1));
+    l->setActive(true);
+    l->setIa(vec3(0.05));
+    l->setId(vec3(0,0.5,0));
+    l->setIs(vec3(.5));
+    this->addLight(l);
+
+//    Light* l2 = new Light(Puntual);
+//    l2->setPosition(vec4(-1,1,0,1));
+//    l2->setActive(true);
+//    l2->setIa(vec3(0.05));
+//    l2->setId(vec3(0.5,0,0));
+//    l2->setIs(vec3(0));
+//    this->addLight(l2);
 }
 
-/**
- * @brief Scene::~Scene
- */
 Scene::~Scene() {
     elements.clear();
     lights.clear();
 }
 
-/**
- * @brief Scene::addObject
- * @param obj
- */
+
 void Scene::addObject(Object *obj) {
     elements.push_back(obj);
     calculCapsaMinCont3DEscena();
 }
 
-/**
- * @brief Scene::draw
- */
 void Scene::draw() {
     for(unsigned int i=0; i < elements.size(); i++){
         elements.at(i)->draw();
     }
 }
 
-/**
- * @brief Scene::drawTexture
- */
 void Scene::drawTexture() {
     for(unsigned int i=0; i < elements.size(); i++){
         elements.at(i)->drawTexture();
     }
 }
 
-/**
- * @brief Scene::getLightActual
- * @return
- */
 Light* Scene::getLightActual() {
-    // TO DO OPCIONAL: A modificar si es vol canviar el comportament de la GUI
+    // TODO OPCIONAL: A modificar si es vol canviar el comportament de la GUI
     // Ara per ara dona com a Light actual la darrera que s'ha inserit
     return (lights[lights.size()-1]);
 }
 
-/**
- * @brief Scene::setLightActual
- * @param l
- */
 void Scene::setLightActual(Light* l){
     lights[lights.size()-1]=l;
 }
 
 
-/**
- * @brief Scene::lightsToGPU
- * @param program
- */
 void Scene::lightsToGPU(QGLShaderProgram *program){
-// TO DO: A implementar a la fase 1 de la practica 2
+// TODO: A implementar a la fase 1 de la practica 2
 
+    for(uint i=0; i < this->lights.size(); i++){
+
+        Light* l = this->lights.at(i);
+        uint ltype = program->uniformLocation(QString("lights[%1].type").arg(i));
+        glUniform1i(ltype, l->getTipusLight());
+
+        uint lactive = program->uniformLocation(QString("lights[%1].enabled").arg(i));
+        glUniform1i(lactive, l->isActive() ? 1 : 0);
+
+        uint lia = program->uniformLocation(QString("lights[%1].ia").arg(i));
+        glUniform3fv(lia, 1, l->getIa());
+        uint lid = program->uniformLocation(QString("lights[%1].id").arg(i));
+        glUniform3fv(lid, 1, l->getId());
+        uint lis = program->uniformLocation(QString("lights[%1].is").arg(i));
+        glUniform3fv(lis, 1, l->getIs());
+
+        uint lpos = program->uniformLocation(QString("lights[%1].pos").arg(i));
+        glUniform4fv(lpos, 1, l->getPosition());
+        uint lcoef = program->uniformLocation(QString("lights[%1].coef").arg(i));
+        glUniform3fv(lcoef, 1, l->getCoeficients());
+
+
+    }
 
 }
 
@@ -81,12 +94,8 @@ void Scene::addLight(Light *l) {
 
 }
 
-/**
- * @brief Scene::setAmbientToGPU
- * @param program
- */
-void Scene::setAmbientToGPU(QGLShaderProgram *program){
-    // TO DO: A implementar a la fase 1 de la practica 2
+void Scene::ambientToGPU(QGLShaderProgram *program){
+    // TODO: A implementar a la fase 1 de la practica 2
 
     GLint ambientLocation = program->uniformLocation("ambientLight");
     glUniform3fv(ambientLocation, 1, this->lightAmbientGlobal);

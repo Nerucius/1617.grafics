@@ -21,7 +21,7 @@ protected:
     QString nom;
     vector<Cara> cares;
     vector<point4> vertexs;
-    vector<point4> vNormals;
+    vector<vec4> vNormals;
 
     GLuint buffer;
     GLuint nBuffer;

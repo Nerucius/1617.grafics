@@ -132,10 +132,15 @@ void Camera::rotaCamera(Capsa3D capsa) {
 
 /* Pas a la GPU */
 
-void Camera::toGPU(QGLShaderProgram *program)
-{
-// TO DO: A implementar a la fase 1 de la practica 2 i
-    // a la fase 2 de la practica 2
+void Camera::toGPU(QGLShaderProgram *program){
+
+    // Copy modelView and Projection matrices
+    uint mv = program->uniformLocation("modelViewMat");
+    uint p = program->uniformLocation("projectionMat");
+
+    glUniformMatrix4fv(mv, 1, false, this->modView);
+    glUniformMatrix4fv(p, 1, false, this->proj);
+
 }
 
 void Camera::setModelView(QGLShaderProgram *program, mat4 m)

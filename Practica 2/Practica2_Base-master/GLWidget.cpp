@@ -3,6 +3,14 @@
 #include <QtDebug>
 #include <QString>
 
+char* gouraudVertPath = "../Practica2_Base-master/resources/gouraudVert.glsl";
+char* gouraudFragPath = "../Practica2_Base-master/resources/gouraudFrag.glsl";
+
+char* phongVertPath = "../Practica2_Base-master/resources/phongVert.glsl";
+char* phongFragPath = "../Practica2_Base-master/resources/phongFrag.glsl";
+
+char* toonVertPath = "../Practica2_Base-master/resources/toonVert.glsl";
+char* toongFragPath = "../Practica2_Base-master/resources/toonFrag.glsl";
 
 GLWidget::GLWidget(QWidget *parent) : QGLWidget(QGLFormat(QGL::SampleBuffers), parent) {
     setFocusPolicy( Qt::StrongFocus );
@@ -18,18 +26,21 @@ GLWidget::~GLWidget() {
 // Metodes que es criden des dels menús
 
 void GLWidget::activaToonShader() {
-    //A implementar a la fase 1 de la practica 2
+    initShader(toonVertPath, toongFragPath);
+    updateGL();
     cout<<"Estic a Toon"<<endl;
 }
 
 void GLWidget::activaPhongShader() {
-    //A implementar a la fase 1 de la practica 2
+    initShader(phongVertPath, phongFragPath);
+    updateGL();
     cout<<"Estic a Phong"<<endl;
 
 }
 
 void GLWidget::activaGouraudShader() {
-    //A implementar a la fase 1 de la practica 2
+    initShader(gouraudVertPath, gouraudFragPath);
+    updateGL();
     cout<<"Estic a Gouraud"<<endl;
 
 }
@@ -41,7 +52,6 @@ void GLWidget::activaPhongTex() {
 
 void GLWidget::activaGouraudTex() {
     //A implementar a la fase 1 de la practica 2
-
     this->updateShaderTexture();
 }
 
@@ -88,34 +98,34 @@ void GLWidget::changeSpotLight() {
 }
 void GLWidget::updateXPositionLight(int xposition) {
     // S'ha de modificar la posicio x de la llum activa
-    vec4 v = scene->getLightActual()->getLightPosition();
+    vec4 v = scene->getLightActual()->getPosition();
     v[0] = (float)xposition;
-    scene->getLightActual()->setLightPosition(v);
+    scene->getLightActual()->setPosition(v);
 }
 
 void GLWidget::updateYPositionLight(int yposition) {
     // S'ha de modificar la posicio y de la llum activa
-    vec4 v = scene->getLightActual()->getLightPosition();
+    vec4 v = scene->getLightActual()->getPosition();
     v[1] = (float)yposition;
-    scene->getLightActual()->setLightPosition(v);
+    scene->getLightActual()->setPosition(v);
 }
 
 void GLWidget::updateZPositionLight(int zposition) {
     // S'ha de modificar la posicio z de la llum activa
-    vec4 v = scene->getLightActual()->getLightPosition();
+    vec4 v = scene->getLightActual()->getPosition();
     v[2] = (float)zposition;
-    scene->getLightActual()->setLightPosition(v);
+    scene->getLightActual()->setPosition(v);
 }
 
 void GLWidget::updateLightIntensity(int intens) {
     // S'ha de modificar la intensitat de la llum 0. es podria canviar per la llum actual
     vec3 intensitat;
-    intensitat =  scene->getLightActual()->getDiffuseIntensity();
+    intensitat =  scene->getLightActual()->getId();
     intensitat[0] = intens/200.0;
     intensitat[1] = intens/200.0;
     intensitat[2] = intens/200.0; // el 200 es l'escala del scrollbar
 
-    scene->getLightActual()->setDiffuseIntensity(intensitat);
+    scene->getLightActual()->setId(intensitat);
 }
 
 void GLWidget::activateLight(){
@@ -229,7 +239,7 @@ void GLWidget::initShadersGPU(){
     //initShader("://resources/vshader1.glsl", "://resources/fshader1.glsl");
 
     // TODO: Test if this loads the shader correctly
-    initShader("://resources/matvshader1.glsl", "://resources/matfshader1.glsl");
+    initShader(gouraudVertPath, gouraudFragPath);
 }
 
 QSize GLWidget::minimumSizeHint() const {
@@ -249,8 +259,8 @@ void GLWidget::initializeGL() {
     initShadersGPU();
 
     // Creacio d'una Light per apoder modificar el seus valors amb la interficie
-    Light *l = new Light(Puntual);
-    scene->addLight(l);
+//    Light *l = new Light(Puntual);
+//    scene->addLight(l);
 
     camera->init(this->size().width(), this->size().height(), scene->capsaMinima);
     glViewport(camera->vp.pmin[0], camera->vp.pmin[1], camera->vp.a, camera->vp.h);
@@ -258,12 +268,16 @@ void GLWidget::initializeGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
+/** Render method for the OpenGL window */
 void GLWidget::paintGL() {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+
+    // Set camera matrices on shader
     camera->toGPU(program);
 
     // Send lights to GPU
-    scene->setAmbientToGPU(program);
+    scene->ambientToGPU(program);
     scene->lightsToGPU(program);
 
     // Draw SCENE
@@ -285,7 +299,7 @@ void GLWidget::resizeGL(int width, int height) {
 void GLWidget::newObj(QString fichero){
     qDebug() << fichero;
 
-    Material* mat = new Material( vec3(0.,0.1,0.), vec3(0,.8,0), vec3(0,0,0), 1.f);
+    Material* mat = new Material( vec3(0.,0.1,0.), vec3(.1,.8,.1), vec3(.1,.5,.1), 1);
     Object * obj = new Object(100000, fichero, mat);
 
     obj->toGPU(program);
@@ -345,11 +359,11 @@ void GLWidget::showAuxWindowPuntualLight(Light *light)
     if (light == NULL)
         lightSlider->setSliderPosition(100);
     else
-        lightSlider->setSliderPosition(100*light->getDiffuseIntensity()[0]);
+        lightSlider->setSliderPosition(100*light->getId()[0]);
     connect(lightSlider,SIGNAL(valueChanged(int)),this,SLOT(updateLightIntensity(int)));
     QLabel* lightLabel = new QLabel("Light intensity = ");
     QLabel* lightLabelValue = new QLabel();
-    lightLabelValue->setNum(100 * light->getDiffuseIntensity()[0]);
+    lightLabelValue->setNum(100 * light->getId()[0]);
     connect(lightSlider,SIGNAL(valueChanged(int)),lightLabelValue,SLOT(setNum(int)));
     QHBoxLayout *hboxLight = new QHBoxLayout;
     hboxLight->addWidget(lightLabel);
@@ -365,7 +379,7 @@ void GLWidget::showAuxWindowPuntualLight(Light *light)
     if (light == NULL)
         XSlider->setSliderPosition(100);
     else
-        XSlider->setSliderPosition(light->getLightPosition()[0]);
+        XSlider->setSliderPosition(light->getPosition()[0]);
     connect(XSlider,SIGNAL(valueChanged(int)),this,SLOT(updateXPositionLight(int)));
     QLabel* XLabel = new QLabel("X Position = ");
     QLabel* XLabelValue = new QLabel();
@@ -385,7 +399,7 @@ void GLWidget::showAuxWindowPuntualLight(Light *light)
     if (light == NULL)
         YSlider->setSliderPosition(100);
     else
-        YSlider->setSliderPosition(light->getLightPosition()[1]);
+        YSlider->setSliderPosition(light->getPosition()[1]);
 
     connect(YSlider,SIGNAL(valueChanged(int)),this,SLOT(updateYPositionLight(int)));
     QLabel* YLabel = new QLabel("Y Position = ");
@@ -406,7 +420,7 @@ void GLWidget::showAuxWindowPuntualLight(Light *light)
     if (light == NULL)
         ZSlider->setSliderPosition(100);
     else
-        ZSlider->setSliderPosition(light->getLightPosition()[2]);
+        ZSlider->setSliderPosition(light->getPosition()[2]);
     connect(ZSlider,SIGNAL(valueChanged(int)),this,SLOT(updateZPositionLight(int)));
     QLabel* ZLabel = new QLabel("Z Position = ");
     QLabel* ZLabelValue = new QLabel();

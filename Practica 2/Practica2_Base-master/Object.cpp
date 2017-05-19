@@ -44,11 +44,16 @@ void Object::toGPU(QGLShaderProgram *pr) {
 
     program = pr;
 
-    // Vertex Pos Buffer
+    // Crear Vertex Buffer, amb tants elements com necesitem per les dades:
+    // v4f x totes les posicions dels vertex
+    // v4f x totes les normals dels vertex
+    // v2f x totes les cordenades de textura dels vertex? -> NO HO USAREM
     glGenBuffers( 1, &buffer );
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
-    //glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index + sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
-    glBufferData( GL_ARRAY_BUFFER, sizeof(point4)*Index + sizeof(point4)*Index, NULL, GL_STATIC_DRAW );
+    glBufferData( GL_ARRAY_BUFFER,
+                  sizeof(vec4)*Index + sizeof(vec4)*Index,
+                  NULL,
+                  GL_STATIC_DRAW );
 
     glEnable( GL_DEPTH_TEST );
 
@@ -65,9 +70,14 @@ void Object::draw(){
 
     // Aqui es torna a repetir el pas de dades a la GPU per si hi ha més d'un objecte
     glBindBuffer( GL_ARRAY_BUFFER, buffer );
+
+    // Seleccionar zona del buffer de 0 a numero de vertex, copiar les dades
     glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(point4)*Index, &points[0] );
+    // Posició de memoria de la GPU que correspon a vPosition
     int vertexLocation = program->attributeLocation("vPosition");
+    // Marcar com "Attribute Array" per cada vertex
     program->enableAttributeArray(vertexLocation);
+    // Aquest atribut del vertex es dirà "vPosition", i es salta de 4 en 4 per vertex
     program->setAttributeBuffer("vPosition", GL_FLOAT, 0, 4);
 
     // Activar Normals
@@ -81,7 +91,7 @@ void Object::draw(){
     material->toGPU(program);
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    glDrawArrays( GL_TRIANGLES, 0, Index );
+    glDrawArrays( GL_TRIANGLES, 0, this->Index );
 }
 
 /**
