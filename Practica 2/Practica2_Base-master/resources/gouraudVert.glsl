@@ -59,7 +59,7 @@ vec3 lighting(Light l, vec3 pos, vec3 norm){
     vec3 spec = mat.ks * l.is * pow ( max(dot(V,R),0), mat.shine);
 
     // Distance attenuation
-    float d = distance(vPosition, l.pos);
+    float d = distance(pos, l.pos);
     float attf = 1. / 1. + (l.coef.x + l.coef.y*d + l.coef.z*d*d);
 
     return (amb + diff + spec) * attf;

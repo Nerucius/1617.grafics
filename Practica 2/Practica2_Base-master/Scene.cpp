@@ -14,7 +14,7 @@ Scene::Scene() {
     Light* l = new Light(Puntual);
     l->setPosition(vec4(3,3,0,1));
     l->setActive(true);
-    l->setIa( vec3(0.05) );
+    l->setIa( vec3(0.4) );
     l->setId( vec3(0.8) );
     l->setIs( vec3(0.6) );
     l->setCoeficients( vec3(0,0,0.01) );
