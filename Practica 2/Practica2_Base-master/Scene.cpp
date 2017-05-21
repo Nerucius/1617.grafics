@@ -9,12 +9,15 @@ Scene::Scene() {
 
 
     lightAmbientGlobal = vec3(0.08, 0.05, 0.05);
+
+
     Light* l = new Light(Puntual);
-    l->setPosition(vec4(1,1,0,1));
+    l->setPosition(vec4(3,3,0,1));
     l->setActive(true);
-    l->setIa(vec3(0.05));
-    l->setId(vec3(0,0.5,0));
-    l->setIs(vec3(.5));
+    l->setIa( vec3(0.05) );
+    l->setId( vec3(0.8) );
+    l->setIs( vec3(0.6) );
+    l->setCoeficients( vec3(0,0,0.01) );
     this->addLight(l);
 
 //    Light* l2 = new Light(Puntual);
@@ -39,6 +42,7 @@ void Scene::addObject(Object *obj) {
 
 void Scene::draw() {
     for(unsigned int i=0; i < elements.size(); i++){
+        // NOTE: Object.draw() also sends the Material to the GPU
         elements.at(i)->draw();
     }
 }

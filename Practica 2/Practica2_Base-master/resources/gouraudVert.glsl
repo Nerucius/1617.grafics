@@ -31,6 +31,8 @@ struct Light{
 };
 
 // Uniforms
+uniform vec4 vrp;
+uniform vec4 camPos;
 uniform mat4 modelViewMat;
 uniform mat4 projectionMat;
 
@@ -39,22 +41,28 @@ uniform vec3 ambientLight;
 uniform Light lights[MAX_LIGHTS];
 
 
+/**
+ * Phong-Shading using world-coordinates.
+ * @param l: Light
+ * @param pos: world-space position to calculate lighting on
+ * @param norm: world-space surface normal at pos
+ */
 vec3 lighting(Light l, vec3 pos, vec3 norm){
-    vec3 s = normalize( l.pos.xyz - pos );
-    vec3 v = normalize( -pos.xyz );
-    vec3 r = reflect( -s, norm);
+    vec3 L = normalize(l.pos.xyz - camPos.xyz);
+    vec3 V = normalize(- pos);
 
-    vec3 ambient = l.ia * mat.ka;
+    vec3 N = normalize(norm);
+    vec3 R = reflect(L, N);
 
-    float sDotN = max( dot(s, norm), 0);
-    vec3 diffuse = l.id * mat.kd * sDotN;
+    vec3 amb = mat.ka * l.ia;
+    vec3 diff = mat.kd * l.id * dot(L,N);
+    vec3 spec = mat.ks * l.is * pow ( max(dot(V,R),0), mat.shine);
 
-    vec3 spec = vec3(0);
-    if(sDotN > 0){
-        spec = l.is * mat.ks * pow( max(dot(r,v),0), mat.shine );
-    }
+    // Distance attenuation
+    float d = distance(vPosition, l.pos);
+    float attf = 1. / 1. + (l.coef.x + l.coef.y*d + l.coef.z*d*d);
 
-    return ambient + diffuse + spec;
+    return (amb + diff + spec) * attf;
 }
 
 
@@ -76,11 +84,7 @@ void main(){
         color.rgb += lighting(l, vPosition.xyz, vNormal.xyz);
     }
 
-
-    //vec4 lightDir = normalize(lightPos - vPosition);
-    //float cosTheta = clamp(dot(normalize(lightDir), vNormal), 0,1);
-    //color.rgb = (cosTheta * mat.kd).rgb + mat.ka.rgb + ambientLight.rgb;
     color.a = 1;
 
-    gl_Position = modelViewMat * vPosition;
+    gl_Position = projectionMat * modelViewMat  * vPosition;
 }

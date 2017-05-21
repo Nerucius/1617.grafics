@@ -152,8 +152,9 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
-    int dx = event->x() - lastPos.x();
-    int dy = event->y() - lastPos.y();
+    int dx = -(event->x() - lastPos.x());
+    int dy = -(event->y() - lastPos.y());
+
         std::cout<<"M button"<<std::endl;
     if (event->buttons() & Qt::LeftButton)
     {
@@ -239,7 +240,7 @@ void GLWidget::initShadersGPU(){
     //initShader("://resources/vshader1.glsl", "://resources/fshader1.glsl");
 
     // TODO: Test if this loads the shader correctly
-    initShader(gouraudVertPath, gouraudFragPath);
+    initShader(phongVertPath, phongFragPath);
 }
 
 QSize GLWidget::minimumSizeHint() const {
@@ -299,7 +300,7 @@ void GLWidget::resizeGL(int width, int height) {
 void GLWidget::newObj(QString fichero){
     qDebug() << fichero;
 
-    Material* mat = new Material( vec3(0.,0.1,0.), vec3(.1,.8,.1), vec3(.1,.5,.1), 1);
+    Material* mat = new Material( vec3(.1), vec3(.9,0,0), vec3(0,.9,0), 10);
     Object * obj = new Object(100000, fichero, mat);
 
     obj->toGPU(program);

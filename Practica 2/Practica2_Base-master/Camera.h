@@ -55,8 +55,8 @@ public:
     Capsa2D  CapsaMinCont2DXYVert( vec4 *v, int nv);
 
     void setViewport(int x, int y, int a, int h);
-    void setModelView(QGLShaderProgram *program, mat4 m);
-    void setProjection(QGLShaderProgram *program, mat4 p);
+    void setModelView(QGLShaderProgram *program);
+    void setProjection(QGLShaderProgram *program);
 
     vec4 origin;
     vec4 vrp;

@@ -134,23 +134,25 @@ void Camera::rotaCamera(Capsa3D capsa) {
 
 void Camera::toGPU(QGLShaderProgram *program){
 
-    // Copy modelView and Projection matrices
+    uint vrp = program->uniformLocation("vrp");
+    glUniform4fv(vrp, 1, this->vrp);
+
+    uint cp = program->uniformLocation("camPos");
+    glUniform4fv(cp, 1, this->origin);
+
+    this->setModelView(program);
+    this->setProjection(program);
+
+}
+
+void Camera::setModelView(QGLShaderProgram *program){
     uint mv = program->uniformLocation("modelViewMat");
+    glUniformMatrix4fv(mv, 1, GL_TRUE, this->modView);
+}
+
+void Camera::setProjection(QGLShaderProgram *program){
     uint p = program->uniformLocation("projectionMat");
-
-    glUniformMatrix4fv(mv, 1, false, this->modView);
-    glUniformMatrix4fv(p, 1, false, this->proj);
-
-}
-
-void Camera::setModelView(QGLShaderProgram *program, mat4 m)
-{
- // TO DO: A implementar a la fase 2 de la practica 2
-}
-
-void Camera::setProjection(QGLShaderProgram *program, mat4 p)
-{
-    // TO DO: A implementar a la fase 2 de la practica 2
+    glUniformMatrix4fv(p, 1, GL_TRUE, this->proj);
 }
 
 void Camera::setViewport(int x, int y, int a, int h)
