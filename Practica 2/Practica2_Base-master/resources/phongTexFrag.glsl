@@ -78,7 +78,7 @@ void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec
     // Distance attenuation
     float d = distance(pos, l.pos.xyz);
     float attf = 1. / 1. + (l.coef.x + l.coef.y * d + l.coef.z * d*d);
-
+    //attf = 1;
 
     amb = mat.ka * l.ia * attf ;
     diff =  mat.kd * l.id * NdotL * attf * AO;
@@ -101,7 +101,7 @@ void main()
          emisT = vec3(0);
 
     // Sphere Mapping Coordinates
-    vec3 coords = normalize(fragWorldPos.xyz);
+    vec3 coords = normalize(fragNormal.xyz);
     float u = 0.5 - atan(coords.z, coords.x) / 2. / PI;
     float v = 0.5 - asin(coords.y) / PI;
     vec2 uv = vec2(u, v);
@@ -112,8 +112,10 @@ void main()
     if(hasSpec == 1)
         specT = texture2D(specTex, uv).rgb;
 
-    if(hasNorm == 1)
-        normal += (texture2D(normTex, uv).rgb * 2 - vec3(1))*0.2;
+    if(hasNorm == 1){
+        vec3 disturbance = texture2D(normTex, uv).rgb * 2 - vec3(1);
+        normal = normalize(normal + disturbance*0.1);
+    }
 
     if(hasEmissive == 1)
         emisT += texture2D(emissiveTex, uv).rgb;
