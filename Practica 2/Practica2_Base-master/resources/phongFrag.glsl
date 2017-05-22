@@ -51,13 +51,12 @@ void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec
 
     vec3 R = reflect(-L, N);
     //vec3 H = normalize(L+V);
-
     float NdotL = max(dot(N, L),0);
     float VdotR = max(dot(R, V),0);
     //float NdotH = dot(N, H);
-    float VdotN = max(dot(viewDir.xyz, N), 0);
 
     // fake Ambient occlusion
+    float VdotN = max(dot(viewDir.xyz, N), 0);
     float AO = clamp(VdotN/2.,0,1);
 
     // Distance attenuation
@@ -83,6 +82,13 @@ void main()
 
     for(int i = 0; i< MAX_LIGHTS; i++){
         Light l = lights[i];
+
+        // Directional type light: Place at infitiny, and no attenuation
+        if(l.type == DIR){
+            l.pos.xyz *= 1e16;
+            l.coef = vec3(0);
+        }
+
 
         lighting(l, fragWorldPos.xyz, fragNormal.xyz, amb, diff, spec);
         ambientSum += amb;

@@ -20,7 +20,7 @@
      <x>0</x>
      <y>0</y>
      <width>533</width>
-     <height>22</height>
+     <height>18</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuModels">
@@ -47,6 +47,7 @@
     <addaction name="action_phong_tex"/>
     <addaction name="action_bump_mapping"/>
     <addaction name="action_environmental_mapping"/>
+    <addaction name="action_emissive_night_map"/>
    </widget>
    <addaction name="menuModels"/>
    <addaction name="menuShaders"/>
@@ -140,6 +141,17 @@
   <action name="action_afegeix_llum_puntual">
    <property name="text">
     <string>Llum Actual</string>
+   </property>
+  </action>
+  <action name="action_emissive_night_map">
+   <property name="text">
+    <string>Emissive NIght Map</string>
+   </property>
+   <property name="toolTip">
+    <string>Emissive Night Map</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+6</string>
    </property>
   </action>
  </widget>

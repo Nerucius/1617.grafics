@@ -15,13 +15,19 @@ Object::Object(int npoints, QObject *parent, Material* mat) : QObject(parent){
 
  }
 
-Object::Object(int npoints, QString n, Material* mat) : numPoints(npoints){
+Object::Object(int npoints, QString path, Material* mat) : numPoints(npoints){
     points = new point4[numPoints];
     normals= new point4[numPoints];
 
     this->material = mat;
 
-    readObj(n);
+    // Init texture arrays
+    for(int i = 0; i<4; i++){
+        this->enTexture[i] = 0;
+        this->texMaps[i] = NULL;
+    }
+
+    readObj(path);
     make();
 }
 
@@ -121,35 +127,20 @@ void Object::make(){
 }
 
 
-void Object::initTextura(char* diffPath, char* normPath, char* specPath){
+void Object::initTextura(char* imagePath, TexSlot slot){
     // Activar textures
 
-    glActiveTexture(GL_TEXTURE0);
-    this->diffTex = new QOpenGLTexture(QImage(diffPath));
-    this->diffTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-    this->diffTex->setMagnificationFilter(QOpenGLTexture::Linear);
-    this->diffTex->bind(0);
+    glActiveTexture(GL_TEXTURE0 + slot);
+    this->texMaps[slot] = new QOpenGLTexture(QImage(imagePath));
+    this->texMaps[slot]->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    this->texMaps[slot]->setMagnificationFilter(QOpenGLTexture::Linear);
+    this->texMaps[slot]->bind(slot);
 
-    if(normPath){
-        glActiveTexture(GL_TEXTURE1);
-        this->normTex = new QOpenGLTexture(QImage(normPath));
-        this->normTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-        this->normTex->setMagnificationFilter(QOpenGLTexture::Linear);
-        this->normTex->bind(1);
-    }
+    this->enTexture[slot] = 1;
 
-    if(specPath){
-        glActiveTexture(GL_TEXTURE2);
-        this->specTex = new QOpenGLTexture(QImage(specPath));
-        this->specTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
-        this->specTex->setMagnificationFilter(QOpenGLTexture::Linear);
-        this->specTex->bind(2);
-    }
-
-    cout << "Init Texture OK" << endl;
-
-
+    cout << "Init Texture Slot: " << slot << endl;
 }
+
 
 
 /**
@@ -160,26 +151,40 @@ void Object::toGPUTexture(QGLShaderProgram *program) {
 
     program->setUniformValue("hasNorm", 0);
     program->setUniformValue("hasSpec", 0);
+    program->setUniformValue("hasEmissive", 0);
 
-    if(this->diffTex){
-        this->diffTex->bind(0);
+    if(this->enTexture[TexSlot::Diffuse]){
+        this->texMaps[TexSlot::Diffuse]->bind(0);
         program->setUniformValue("diffTex", 0);
     }
-    if(this->normTex && enNormMap){
-        this->normTex->bind(1);
+
+    if(this->enTexture[TexSlot::Normal]){
+        this->texMaps[TexSlot::Normal]->bind(1);
         program->setUniformValue("normTex", 1);
         program->setUniformValue("hasNorm", 1);
     }
-    if(this->specTex && enSpecMap){
-        this->specTex->bind(2);
+
+    if(this->enTexture[TexSlot::Specular]){
+        this->texMaps[TexSlot::Specular]->bind(2);
         program->setUniformValue("specTex", 2);
         program->setUniformValue("hasSpec", 1);
+    }
+    if(this->enTexture[TexSlot::Emissive]){
+        this->texMaps[TexSlot::Emissive]->bind(3);
+        program->setUniformValue("emissiveTex", 3);
+        program->setUniformValue("hasEmissive", 1);
     }
 
     this->toGPU(program);
 
-    if(this->diffTex || this->normTex || this->specTex){
+    // Enable texturing on any
+    if(this->enTexture[TexSlot::Diffuse]
+            || this->enTexture[TexSlot::Normal]
+            || this->enTexture[TexSlot::Specular]
+            || this->enTexture[TexSlot::Emissive]){
+
         glEnable(GL_TEXTURE_2D);
+
         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
     }

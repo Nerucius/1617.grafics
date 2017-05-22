@@ -8,16 +8,15 @@ Scene::Scene() {
     capsaMinima.p = 2;
 
 
-    lightAmbientGlobal = vec3(0.08, 0.05, 0.05);
-
+    lightAmbientGlobal = vec3(0.05);
 
     Light* l = new Light(Puntual);
     l->setPosition(vec4(4,6,0,1));
     l->setActive(true);
-    l->setIa( vec3(0.2) );
-    l->setId( vec3(0.8) );
-    l->setIs( vec3(0.4) );
-    l->setCoeficients( vec3(0,0,0.05) );
+    l->setIa( vec3(0.1) );
+    l->setId( vec3(0.6) );
+    l->setIs( vec3(0.3) );
+    l->setCoeficients( vec3(0,0,0.08) );
     this->addLight(l);
 
 //    Light* l2 = new Light(Puntual);

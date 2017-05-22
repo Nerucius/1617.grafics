@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(this->ui->action_bump_mapping, SIGNAL(triggered()), glWidget, SLOT(activaBumpMapping()));
     connect(this->ui->action_environmental_mapping, SIGNAL(triggered()), glWidget, SLOT(activaEnvMapping()));
     connect(this->ui->action_afegeix_llum_puntual, SIGNAL(triggered()), glWidget, SLOT(ensenyaMenuLight0()));
+    connect(this->ui->action_emissive_night_map, SIGNAL(triggered()), glWidget, SLOT(activateLight()));
 
 }
 MainWindow::~MainWindow()

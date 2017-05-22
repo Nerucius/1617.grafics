@@ -143,16 +143,31 @@ void GLWidget::activaBumpMapping() {
 
     for (int i = 0; i < this->scene->elements.size(); i++){
         Object* o = this->scene->elements.at(i);
-        o->enNormMap = o->enNormMap ? 0 : 1;
-        o->toGPUTexture(this->program);
+        enBump = o->enTexture[TexSlot::Normal] == 1 ? 0:1;
 
-        enBump = o->enNormMap;
+        o->enTexture[TexSlot::Normal] = enBump;
+        o->toGPUTexture(this->program);
     }
 
 
     cout << "Normal maps: " << enBump << endl;
+}
+
+/** Toggle Emissive Night Map */
+void GLWidget::activaEmissiveNightMap() {
+
+    int enEmissive;
+
+    for (int i = 0; i < this->scene->elements.size(); i++){
+        Object* o = this->scene->elements.at(i);
+        enEmissive = o->enTexture[TexSlot::Emissive] == 1 ? 0:1;
+
+        o->enTexture[TexSlot::Emissive] = enEmissive;
+        o->toGPUTexture(this->program);
+    }
 
 
+    cout << "Emissive maps: " << enEmissive << endl;
 }
 
 void GLWidget::activaEnvMapping() {
@@ -328,12 +343,13 @@ void GLWidget::newObj(QString path){
 
     // Earth Sphere Best Parameters
 
-    Material* mat = new Material( vec3(.2), vec3(.4), vec3(.4), 4);
+    Material* mat = new Material( vec3(.1), vec3(.6), vec3(.3), 4);
     Object * obj = new Object(100000, path, mat);
-    obj->initTextura("../Practica2_Base-master/resources/textures/earth1.png"
-                     ,"../Practica2_Base-master/resources/textures/earth3.png"
-                     ,"../Practica2_Base-master/resources/textures/2k_earth_specular_map.jpg");
 
+    obj->initTextura("../Practica2_Base-master/resources/textures/earth1.png", TexSlot::Diffuse);
+    obj->initTextura("../Practica2_Base-master/resources/textures/2k_earth_specular_map.jpg", TexSlot::Specular);
+    obj->initTextura("../Practica2_Base-master/resources/textures/earth3.png", TexSlot::Normal);
+    obj->initTextura("../Practica2_Base-master/resources/textures/earth2.png", TexSlot::Emissive);
 
     // Red Teapot Best Parameters
     /*

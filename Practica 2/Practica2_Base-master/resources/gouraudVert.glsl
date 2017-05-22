@@ -41,6 +41,8 @@ uniform Material mat;
 uniform vec3 ambientLight;
 uniform Light lights[MAX_LIGHTS];
 
+vec4 viewDir;
+
 
 /**
  * Phong-Shading using world-coordinates.
@@ -54,12 +56,15 @@ vec3 lighting(Light l, vec3 pos, vec3 norm){
     vec3 N = normalize(norm);
 
     vec3 R = reflect(-L, N);
-
     float NdotL = max(dot(N, L),0);
     float VdotR = max(dot(R, V),0);
 
+    // fake Ambient occlusion
+    float VdotN = max(dot(viewDir.xyz, N), 0);
+    float AO = clamp(VdotN/2.,0,1);
+
     vec3 amb = mat.ka * l.ia;
-    vec3 diff = mat.kd * l.id * NdotL;
+    vec3 diff = mat.kd * l.id * NdotL * AO;
     vec3 spec = mat.ks * l.is * pow ( VdotR, mat.shine);
 
     // Distance attenuation
@@ -71,6 +76,8 @@ vec3 lighting(Light l, vec3 pos, vec3 norm){
 
 
 void main(){
+
+    viewDir = vec4(0,0,1,0) * modelViewMat;
 
     color.rgb = ambientLight;
 

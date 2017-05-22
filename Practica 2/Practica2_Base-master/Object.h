@@ -13,6 +13,8 @@ using namespace std;
 
 typedef Common::vec4  point4;
 
+enum TexSlot {Diffuse, Normal, Specular, Emissive};
+
 // Classe que conte la representacio d'un Objecte: geometria, topologia, material i textures
 class Object : public QObject {
 
@@ -46,7 +48,7 @@ public:
     virtual void toGPU(QGLShaderProgram *p);
     virtual void toGPUTexture(QGLShaderProgram *pr);
 
-    virtual void initTextura(char* diffPath, char* normPath, char* specPath);
+    virtual void initTextura(char* imagePath, TexSlot slot);
 
     virtual void draw();
     virtual void drawTexture();
@@ -55,12 +57,8 @@ public:
 
     Material* material;
 
-    QOpenGLTexture *diffTex = NULL;
-    QOpenGLTexture *normTex = NULL;
-    QOpenGLTexture *specTex = NULL;
-
-    bool enNormMap = 0;
-    bool enSpecMap = 1;
+    QOpenGLTexture* texMaps[4];
+    int enTexture[4];
 
 private:
 

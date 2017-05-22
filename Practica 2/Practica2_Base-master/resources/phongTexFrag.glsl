@@ -40,10 +40,15 @@ uniform Light lights[MAX_LIGHTS];
 
 // texture
 uniform sampler2D diffTex;
+
 uniform int hasSpec;
 uniform sampler2D specTex;
+
 uniform int hasNorm;
 uniform sampler2D normTex;
+
+uniform int hasEmissive;
+uniform sampler2D emissiveTex;
 
 
 uniform vec4 camPos;
@@ -65,10 +70,10 @@ void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec
     float NdotL = max(dot(N, L),0);
     float VdotR = max(dot(R, V),0);
     //float NdotH = dot(N, H);
-    float VdotN = max(dot(viewDir.xyz/4, N), 0);
+    float VdotN = max(dot(viewDir.xyz, N), 0);
 
     // fake Ambient occlusion
-    float AO = clamp(VdotN/4.,0,1);
+    float AO = clamp(VdotN/2.,0,1);
 
     // Distance attenuation
     float d = distance(pos, l.pos.xyz);
@@ -91,30 +96,31 @@ void main()
 
     vec3 normal = fragNormal.xyz;
     // Texture
-    vec3 diffT = vec3(1), specT = vec3(1);
+    vec3 diffT = vec3(1),
+         specT = vec3(1),
+         emisT = vec3(0);
 
-    //vec3 dTex, sTex, nTex;
-
+    // Sphere Mapping Coordinates
     vec3 coords = normalize(fragWorldPos.xyz);
-
     float u = 0.5 - atan(coords.z, coords.x) / 2. / PI;
     float v = 0.5 - asin(coords.y) / PI;
-
-    //u = (fwidth(u) < fwidth(1-u)-0.001) ? u : 1-u;
+    vec2 uv = vec2(u, v);
 
     // Tex sampler
-    vec2 uv = vec2(u, v);
     diffT = texture2D(diffTex, uv).rgb;
 
     if(hasSpec == 1)
         specT = texture2D(specTex, uv).rgb;
 
-    if(hasNorm == 1){
+    if(hasNorm == 1)
         normal += (texture2D(normTex, uv).rgb * 2 - vec3(1))*0.2;
-    }
+
+    if(hasEmissive == 1)
+        emisT += texture2D(emissiveTex, uv).rgb;
 
 
-    vec3 amb, diff, spec;
+
+    vec3 amb, diff, spec, color;
     for(int i = 0; i< MAX_LIGHTS; i++){
         Light l = lights[i];
 
@@ -125,9 +131,17 @@ void main()
     }
 
 
-    vec3 color = ambientSum
-                + diffuseSum*0.4 + diffT*0.6
+    color = ambientSum
+                + diffuseSum*0.3 + diffT*0.6
                 + specularSum * specT;
+
+
+    color =  diffuseSum * diffT + specularSum * specT;
+    //color = diffuseSum;
+
+    if(hasEmissive == 1){
+        color += (vec3(1) - (diffuseSum*2)) * emisT;
+    }
 
 
     FragColor = vec4(color, mat.alpha);
