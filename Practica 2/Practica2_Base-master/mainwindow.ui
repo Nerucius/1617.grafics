@@ -47,7 +47,7 @@
     <addaction name="action_phong_tex"/>
     <addaction name="action_bump_mapping"/>
     <addaction name="action_environmental_mapping"/>
-    <addaction name="action_emissive_night_map"/>
+    <addaction name="action_emissive_map"/>
    </widget>
    <addaction name="menuModels"/>
    <addaction name="menuShaders"/>
@@ -143,12 +143,12 @@
     <string>Llum Actual</string>
    </property>
   </action>
-  <action name="action_emissive_night_map">
+  <action name="action_emissive_map">
    <property name="text">
-    <string>Emissive NIght Map</string>
+    <string>Emissive Map</string>
    </property>
    <property name="toolTip">
-    <string>Emissive Night Map</string>
+    <string>Activate Emissive Map</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+6</string>

@@ -35,7 +35,7 @@ public slots:
     void activaGouraudTex();
     void activaBumpMapping();
     void activaEnvMapping();
-    void activaEmissiveNightMap();
+    void activaEmissiveMap();
 
     void ensenyaMenuLight0();
     void changePositionLight();

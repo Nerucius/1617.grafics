@@ -55,21 +55,10 @@ void GLWidget::activaPhongTex() {
 }
 
 void GLWidget::activaGouraudTex() {
-    //A implementar a la fase 1 de la practica 2
-    this->updateShaderTexture();
+    // SKIPPED
 }
 
-//Metode  per canviar de shaders.
-void GLWidget::updateShader(){
-    //A implementar a la fase 1 de la practica 2
 
-}
-
-//Metode per canviar de shaders de textures
-void GLWidget::updateShaderTexture(){
-    //A implementar a la fase 1 de la practica 2
-
-}
 void GLWidget::ensenyaMenuLight0() {
     // Agafa la darrera llum creada. A CANVIAR si es vol tenir control de totes les llums.
     // De fet el metode showAuxWindowPuntualLight té com a parametre la llum a mostrar en el widget.
@@ -154,11 +143,11 @@ void GLWidget::activaBumpMapping() {
 }
 
 /** Toggle Emissive Night Map */
-void GLWidget::activaEmissiveNightMap() {
+void GLWidget::activaEmissiveMap() {
 
     int enEmissive;
 
-    for (int i = 0; i < this->scene->elements.size(); i++){
+    for (uint i = 0; i < this->scene->elements.size(); i++){
         Object* o = this->scene->elements.at(i);
         enEmissive = o->enTexture[TexSlot::Emissive] == 1 ? 0:1;
 
@@ -275,9 +264,6 @@ void GLWidget::initShader(const char* vShaderFile, const char* fShaderFile){
  * @brief GLWidget::initShadersGPU
  */
 void GLWidget::initShadersGPU(){
-    //initShader("://resources/vshader1.glsl", "://resources/fshader1.glsl");
-
-    // TODO: Test if this loads the shader correctly
     initShader(phongTexVertPath, phongTexFragPath);
 }
 
@@ -350,6 +336,7 @@ void GLWidget::newObj(QString path){
     obj->initTextura("../Practica2_Base-master/resources/textures/2k_earth_specular_map.jpg", TexSlot::Specular);
     obj->initTextura("../Practica2_Base-master/resources/textures/earth3.png", TexSlot::Normal);
     obj->initTextura("../Practica2_Base-master/resources/textures/earth2.png", TexSlot::Emissive);
+    obj->enTexture[TexSlot::Normal] = 0;
 
     // Red Teapot Best Parameters
     /*
