@@ -7,6 +7,8 @@
 QT       += core gui opengl
 QT       += widgets
 
+QMAKE_CXXFLAGS += -std=c++11
+
 TARGET = practica2Basica
 TEMPLATE = app
 
