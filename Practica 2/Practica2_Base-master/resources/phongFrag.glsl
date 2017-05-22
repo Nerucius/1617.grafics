@@ -18,6 +18,7 @@ struct Material{
     vec3 kd;
     vec3 ks;
     float shine;
+    float alpha;
 };
 
 struct Light{
@@ -44,12 +45,6 @@ uniform vec4 camPos;
  * @param norm: world-space surface normal at pos
  */
 void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec3 spec){
-
-//    vec3 L = normalize(l.pos.xyz - camPos.xyz);
-//    vec3 V = normalize(- pos);
-//    vec3 N = normalize(norm);
-//    vec3 R = reflect(L, N);
-
     vec3 L = normalize(l.pos.xyz - pos);
     vec3 V = normalize(camPos.xyz - pos);
     vec3 N = normalize(norm);
@@ -70,7 +65,7 @@ void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec
     float attf = 1. / 1. + (l.coef.x + l.coef.y * d + l.coef.z * d*d);
 
 
-    amb = mat.ka * l.ia * attf;
+    amb = mat.ka * l.ia * attf ;
     diff =  mat.kd * l.id * NdotL * attf * AO;
     spec = mat.ks * l.is * pow (VdotR, mat.shine) * attf;
 
@@ -98,5 +93,5 @@ void main()
 
     vec3 color = ambientSum + diffuseSum + specularSum;
 
-    FragColor = vec4(color, 1);
+    FragColor = vec4(color, mat.alpha);
 }

@@ -15,7 +15,7 @@ public:
     void toGPU(QGLShaderProgram *program);
 
     vec3 Ka, Kd, Ks;
-    float shine;
+    float shine, alpha=1;
 };
 
 #endif // MATERIAL_H

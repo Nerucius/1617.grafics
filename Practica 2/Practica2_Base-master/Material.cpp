@@ -20,17 +20,20 @@ void Material::toGPU(QGLShaderProgram *program){
         GLuint kd;
         GLuint ks;
         GLuint shine;
+        GLuint alpha;
     } mat;
 
     mat.ka = program->uniformLocation("mat.ka");
     mat.kd = program->uniformLocation("mat.kd");
     mat.ks = program->uniformLocation("mat.ks");
     mat.shine = program->uniformLocation("mat.shine");
+    mat.alpha = program->uniformLocation("mat.alpha");
 
     glUniform3f(mat.ka, Ka.x, Ka.y, Ka.z);
     glUniform3f(mat.kd, Kd.x, Kd.y, Kd.z);
     glUniform3f(mat.ks, Ks.x, Ks.y, Ks.z);
     glUniform1f(mat.shine, shine);
+    glUniform1f(mat.alpha, alpha);
 
 }
 

@@ -17,6 +17,7 @@ struct Material{
     vec3 kd;
     vec3 ks;
     float shine;
+    float alpha;
 };
 
 struct Light{
@@ -87,7 +88,7 @@ void main(){
         color.rgb += lighting(l, vPosition.xyz, vNormal.xyz);
     }
 
-    color.a = 1;
+    color.a = mat.alpha;
 
     gl_Position = projectionMat * modelViewMat  * vPosition;
 }

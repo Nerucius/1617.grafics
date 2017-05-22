@@ -18,6 +18,7 @@ struct Material{
     vec3 kd;
     vec3 ks;
     float shine;
+    float alpha;
 };
 
 struct Light{
@@ -56,8 +57,9 @@ void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec
     float VdotR = max(dot(R, V),0);
     float VdotN = max(dot(V, N),0);
 
-    // fake Ambient occlusion
-    float AO = clamp(VdotN,0,1);
+    // sillouete
+    float sl = clamp(VdotN*4,0,1);
+    sl = step(0.95, sl);
 
     amb = vec3(0);
     diff = vec3(0);
@@ -69,19 +71,21 @@ void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec
     const float C = 0.6;
     const float D = 1.0;
 
-    float df = VdotN;
+    float df = NdotL;
     if (df < A) df = A;
     else if (df < B) df = B;
     else if (df < C) df = C;
     else df = D;
 
     // Specular
-    float sf = VdotN;
+    float sf = VdotR;
     sf = pow(sf, mat.shine);
-    sf = step(0.5, sf);
+    sf = step(0.9, sf);
+    //spec = vec3(sf);
 
-    amb = mat.ka * l.ia;
-    diff = mat.kd * l.id * df * AO;
+    // Ambient + sillouete
+    amb = mat.ka * l.ia + mat.ka*(1-sl);
+    diff = mat.kd * l.id * df * sl;
     spec = mat.ks * l.is * sf;
 
 }
@@ -108,5 +112,5 @@ void main()
 
     vec3 color = ambientSum + diffuseSum + specularSum;
 
-    FragColor = vec4(color, 1);
+    FragColor = vec4(color, mat.alpha);
 }
