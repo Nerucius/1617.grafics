@@ -9,6 +9,9 @@ char* gouraudFragPath = "../Practica2_Base-master/resources/gouraudFrag.glsl";
 char* phongVertPath = "../Practica2_Base-master/resources/phongVert.glsl";
 char* phongFragPath = "../Practica2_Base-master/resources/phongFrag.glsl";
 
+char* phongTexVertPath = "../Practica2_Base-master/resources/phongTexVert.glsl";
+char* phongTexFragPath = "../Practica2_Base-master/resources/phongTexFrag.glsl";
+
 char* toonVertPath = "../Practica2_Base-master/resources/toonVert.glsl";
 char* toongFragPath = "../Practica2_Base-master/resources/toonFrag.glsl";
 
@@ -46,7 +49,8 @@ void GLWidget::activaGouraudShader() {
 }
 
 void GLWidget::activaPhongTex() {
-    //A implementar a la fase 1 de la practica 2
+    initShader(phongTexVertPath, phongTexFragPath);
+    updateGL();
     cout<<"Estic a Phong Tex"<<endl;
 }
 
@@ -132,14 +136,28 @@ void GLWidget::activateLight(){
     scene->getLightActual()->switchOnOff();
 }
 
+/** Toggle Normal Maps */
 void GLWidget::activaBumpMapping() {
-    //TO DO: a implementar a la fase 2 de la practica 2
+
+    int enBump;
+
+    for (int i = 0; i < this->scene->elements.size(); i++){
+        Object* o = this->scene->elements.at(i);
+        o->enNormMap = o->enNormMap ? 0 : 1;
+        o->toGPUTexture(this->program);
+
+        enBump = o->enNormMap;
+    }
+
+
+    cout << "Normal maps: " << enBump << endl;
+
+
 }
 
 void GLWidget::activaEnvMapping() {
     //To DO: a implementar a la fase 2 de la practica 2
 }
-
 
 
 // Mètodes d'interacció amb el ratolí
@@ -231,6 +249,11 @@ void GLWidget::initShader(const char* vShaderFile, const char* fShaderFile){
     program->addShader(fshader);
     program->link();
     program->bind();
+
+    for (int i = 0; i < this->scene->elements.size(); i++){
+        Object* o = this->scene->elements.at(i);
+        o->toGPUTexture(this->program);
+    }
 }
 
 /**
@@ -240,7 +263,7 @@ void GLWidget::initShadersGPU(){
     //initShader("://resources/vshader1.glsl", "://resources/fshader1.glsl");
 
     // TODO: Test if this loads the shader correctly
-    initShader(phongVertPath, phongFragPath);
+    initShader(phongTexVertPath, phongTexFragPath);
 }
 
 QSize GLWidget::minimumSizeHint() const {
@@ -273,6 +296,8 @@ void GLWidget::initializeGL() {
 void GLWidget::paintGL() {
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+    glEnable(GL_ALPHA);
+    glAlphaFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Set camera matrices on shader
     camera->toGPU(program);
@@ -282,7 +307,7 @@ void GLWidget::paintGL() {
     scene->lightsToGPU(program);
 
     // Draw SCENE
-    scene->draw();
+    scene->drawTexture();
 }
 
 
@@ -297,13 +322,27 @@ void GLWidget::resizeGL(int width, int height) {
     updateGL();
 }
 
-void GLWidget::newObj(QString fichero){
-    qDebug() << fichero;
+void GLWidget::newObj(QString path){
+    qDebug() << path;
 
-    Material* mat = new Material( vec3(.6,.1,.1), vec3(.8,.1,.1), vec3(.1,.6,.1), 4);
-    Object * obj = new Object(100000, fichero, mat);
 
-    obj->toGPU(program);
+    // Earth Sphere Best Parameters
+
+    Material* mat = new Material( vec3(.2), vec3(.4), vec3(.4), 4);
+    Object * obj = new Object(100000, path, mat);
+    obj->initTextura("../Practica2_Base-master/resources/textures/earth1.png"
+                     ,"../Practica2_Base-master/resources/textures/earth3.png"
+                     ,"../Practica2_Base-master/resources/textures/2k_earth_specular_map.jpg");
+
+
+    // Red Teapot Best Parameters
+    /*
+    Material* mat = new Material( vec3(.4,0,0), vec3(.8,.1,.1), vec3(0,.6,0), 4);
+    Object * obj = new Object(100000, path, mat);
+    */
+
+
+    obj->toGPUTexture(program);
     scene->addObject(obj);
     camera->actualitzaCamera(scene->capsaMinima);
     updateGL();

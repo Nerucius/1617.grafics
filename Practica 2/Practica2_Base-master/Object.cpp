@@ -55,7 +55,7 @@ void Object::toGPU(QGLShaderProgram *pr) {
                   NULL,
                   GL_STATIC_DRAW );
 
-    glEnable( GL_DEPTH_TEST );
+    glEnable(GL_DEPTH_TEST);
 
 }
 
@@ -121,17 +121,68 @@ void Object::make(){
 }
 
 
+void Object::initTextura(char* diffPath, char* normPath, char* specPath){
+    // Activar textures
+
+    glActiveTexture(GL_TEXTURE0);
+    this->diffTex = new QOpenGLTexture(QImage(diffPath));
+    this->diffTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+    this->diffTex->setMagnificationFilter(QOpenGLTexture::Linear);
+    this->diffTex->bind(0);
+
+    if(normPath){
+        glActiveTexture(GL_TEXTURE1);
+        this->normTex = new QOpenGLTexture(QImage(normPath));
+        this->normTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+        this->normTex->setMagnificationFilter(QOpenGLTexture::Linear);
+        this->normTex->bind(1);
+    }
+
+    if(specPath){
+        glActiveTexture(GL_TEXTURE2);
+        this->specTex = new QOpenGLTexture(QImage(specPath));
+        this->specTex->setMinificationFilter(QOpenGLTexture::LinearMipMapLinear);
+        this->specTex->setMagnificationFilter(QOpenGLTexture::Linear);
+        this->specTex->bind(2);
+    }
+
+    cout << "Init Texture OK" << endl;
+
+
+}
 
 
 /**
  * @brief Object::toGPUTexture
  * @param pr
  */
-void Object::toGPUTexture(QGLShaderProgram *pr) {
-    program = pr;
+void Object::toGPUTexture(QGLShaderProgram *program) {
 
-// TO DO: Cal implementar en la fase 2 de la practica 2
-// S'ha d'activar la textura i es passa a la GPU
+    program->setUniformValue("hasNorm", 0);
+    program->setUniformValue("hasSpec", 0);
+
+    if(this->diffTex){
+        this->diffTex->bind(0);
+        program->setUniformValue("diffTex", 0);
+    }
+    if(this->normTex && enNormMap){
+        this->normTex->bind(1);
+        program->setUniformValue("normTex", 1);
+        program->setUniformValue("hasNorm", 1);
+    }
+    if(this->specTex && enSpecMap){
+        this->specTex->bind(2);
+        program->setUniformValue("specTex", 2);
+        program->setUniformValue("hasSpec", 1);
+    }
+
+    this->toGPU(program);
+
+    if(this->diffTex || this->normTex || this->specTex){
+        glEnable(GL_TEXTURE_2D);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        //glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    }
 
 }
 
@@ -141,24 +192,8 @@ void Object::toGPUTexture(QGLShaderProgram *pr) {
  * @brief Object::drawTexture
  */
 void Object::drawTexture(){
-
-    // TO DO: Cal implementar en la fase 2 de la practica 2
-    // S'ha d'activar la textura i es passa a la GPU
-
+    this->draw();
 }
-
-
-
-/**
- * @brief Object::initTextura
- */
-void Object::initTextura()
- {
-    // TO DO: A implementar a la fase 2 de la practica 2
-    // Cal inicialitzar la textura de l'objecte: veure l'exemple del CubGPUTextura
-    qDebug() << "Initializing textures...";
-
- }
 
 
 

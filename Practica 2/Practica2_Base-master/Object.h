@@ -46,6 +46,8 @@ public:
     virtual void toGPU(QGLShaderProgram *p);
     virtual void toGPUTexture(QGLShaderProgram *pr);
 
+    virtual void initTextura(char* diffPath, char* normPath, char* specPath);
+
     virtual void draw();
     virtual void drawTexture();
 
@@ -53,10 +55,17 @@ public:
 
     Material* material;
 
+    QOpenGLTexture *diffTex = NULL;
+    QOpenGLTexture *normTex = NULL;
+    QOpenGLTexture *specTex = NULL;
+
+    bool enNormMap = 0;
+    bool enSpecMap = 1;
+
 private:
 
     void construeix_cara ( char **words, int nwords);
-    void initTextura();
+
 };
 
 

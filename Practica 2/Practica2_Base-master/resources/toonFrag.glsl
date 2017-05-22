@@ -84,9 +84,12 @@ void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec
     //spec = vec3(sf);
 
     // Ambient + sillouete
-    amb = mat.ka * l.ia + mat.ka*(1-sl);
-    diff = mat.kd * l.id * df * sl;
+    amb = mat.ka * l.ia + mat.ka*0.1*(1-sl) ;
+    diff = mat.kd * l.id * df;
     spec = mat.ks * l.is * sf;
+
+//    diff = vec3(1-sl);
+
 
 }
 
