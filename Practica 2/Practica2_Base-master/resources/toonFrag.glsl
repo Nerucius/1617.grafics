@@ -5,11 +5,12 @@
 #define DIR 1
 #define SPOT 2
 
-in vec4 worldPos;
+// Interpolated surface data
 in vec4 fragNormal;
-in vec4 fragPos;
-in vec4 camFragPos;
+in vec4 fragWorldPos;
+in vec4 viewDir;
 
+// Final Color Output
 out vec4 FragColor;
 
 struct Material{
@@ -34,33 +35,54 @@ uniform Material mat;
 uniform vec3 ambientLight;
 uniform Light lights[MAX_LIGHTS];
 
+uniform vec4 camPos;
 
+/**
+ * Phong-Shading using world-coordinates.
+ * @param l: Light
+ * @param pos: world-space position to calculate lighting on
+ * @param norm: world-space surface normal at pos
+ */
 void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec3 spec){
-
-    vec3 L = normalize(l.pos.xyz - camFragPos.xyz);
-    vec3 V = normalize(- worldPos.xyz);
-
+    vec3 L = normalize(l.pos.xyz - pos);
+    vec3 V = normalize(viewDir.xyz);
     vec3 N = normalize(norm);
-    vec3 R = reflect(L, N);
 
-    // Distance attenuation
-    float d = distance(worldPos, l.pos);
-    float attf = 1. / 1. + (l.coef.x + l.coef.y*d + l.coef.z*d*d);
+    vec3 R = reflect(-L, N);
+    //vec3 H = normalize(L+V);
 
+    float NdotL = max(dot(N, L),0);
+    //float NdotH = max(dot(N, L),0);
+    float VdotR = max(dot(R, V),0);
+    float VdotN = max(dot(V, N),0);
 
-    float lDotN = dot(L,N);
+    // fake Ambient occlusion
+    float AO = clamp(VdotN,0,1);
 
-    diff *=0;
-    diff += step(0.0, lDotN) * vec3(0,.1,0);
-    diff += step(0.2, lDotN) * vec3(0,.1,0);
-    diff += step(0.6, lDotN) * vec3(0,.1,0);
-    diff += step(0.9, lDotN) * vec3(0,.1,0);
-    diff += step(0.98, lDotN) * vec3(0,.1,0);
+    amb = vec3(0);
+    diff = vec3(0);
+    spec = vec3(0);
 
-//    amb = mat.ka * l.ia * attf;
-//    diff = mat.kd * l.id * dot(L,N) * attf;
-//    spec = mat.ks * l.is * pow ( max(dot(V,R),0), mat.shine) * attf;
+    // Diffuse
+    const float A = 0.1;
+    const float B = 0.3;
+    const float C = 0.6;
+    const float D = 1.0;
 
+    float df = VdotN;
+    if (df < A) df = A;
+    else if (df < B) df = B;
+    else if (df < C) df = C;
+    else df = D;
+
+    // Specular
+    float sf = VdotN;
+    sf = pow(sf, mat.shine);
+    sf = step(0.5, sf);
+
+    amb = mat.ka * l.ia;
+    diff = mat.kd * l.id * df * AO;
+    spec = mat.ks * l.is * sf;
 
 }
 
@@ -77,11 +99,10 @@ void main()
     for(int i = 0; i< MAX_LIGHTS; i++){
         Light l = lights[i];
 
-        lighting(l, worldPos.xyz, fragNormal.xyz, amb, diff, spec);
+        lighting(l, fragWorldPos.xyz, fragNormal.xyz, amb, diff, spec);
         ambientSum += amb;
         diffuseSum += diff;
         specularSum += spec;
-
     }
 
 

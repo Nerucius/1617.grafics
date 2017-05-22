@@ -245,8 +245,9 @@ void Object::readObj(QString filename){
                     y/=w;
                     z/=w;
                 }
-                // S'afegeix el vertex a l'Object
-                vNormals.push_back(point4(x, y, z, 0));
+
+                // S'afegeix la normal de vertex a l'Object
+                vNormals.push_back(vec4(x, y, z, 0));
 
             }
             else if (!strcmp (first_word, "vt")) {

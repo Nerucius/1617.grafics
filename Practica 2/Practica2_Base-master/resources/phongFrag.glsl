@@ -8,6 +8,7 @@
 // Interpolated surface data
 in vec4 fragNormal;
 in vec4 fragWorldPos;
+in vec4 viewDir;
 
 // Final Color Output
 out vec4 FragColor;
@@ -44,19 +45,34 @@ uniform vec4 camPos;
  */
 void lighting(Light l, vec3 pos, vec3 norm, out vec3 amb, out vec3 diff, out vec3 spec){
 
-    vec3 L = normalize(l.pos.xyz - camPos.xyz);
-    vec3 V = normalize(- pos);
+//    vec3 L = normalize(l.pos.xyz - camPos.xyz);
+//    vec3 V = normalize(- pos);
+//    vec3 N = normalize(norm);
+//    vec3 R = reflect(L, N);
 
+    vec3 L = normalize(l.pos.xyz - pos);
+    vec3 V = normalize(camPos.xyz - pos);
     vec3 N = normalize(norm);
-    vec3 R = reflect(L, N);
+
+    vec3 R = reflect(-L, N);
+    //vec3 H = normalize(L+V);
+
+    float NdotL = max(dot(N, L),0);
+    float VdotR = max(dot(R, V),0);
+    //float NdotH = dot(N, H);
+    float VdotN = max(dot(viewDir.xyz, N), 0);
+
+    // fake Ambient occlusion
+    float AO = clamp(VdotN/2.,0,1);
 
     // Distance attenuation
     float d = distance(pos, l.pos.xyz);
     float attf = 1. / 1. + (l.coef.x + l.coef.y * d + l.coef.z * d*d);
 
+
     amb = mat.ka * l.ia * attf;
-    diff = mat.kd * l.id * dot(L,N) * attf;
-    spec = mat.ks * l.is * pow ( max(dot(V,R),0), mat.shine) * attf;
+    diff =  mat.kd * l.id * NdotL * attf * AO;
+    spec = mat.ks * l.is * pow (VdotR, mat.shine) * attf;
 
 }
 

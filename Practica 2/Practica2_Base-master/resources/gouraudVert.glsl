@@ -48,18 +48,21 @@ uniform Light lights[MAX_LIGHTS];
  * @param norm: world-space surface normal at pos
  */
 vec3 lighting(Light l, vec3 pos, vec3 norm){
-    vec3 L = normalize(l.pos.xyz - camPos.xyz);
-    vec3 V = normalize(- pos);
-
+    vec3 L = normalize(l.pos.xyz - pos);
+    vec3 V = normalize(camPos.xyz - pos);
     vec3 N = normalize(norm);
-    vec3 R = reflect(L, N);
+
+    vec3 R = reflect(-L, N);
+
+    float NdotL = max(dot(N, L),0);
+    float VdotR = max(dot(R, V),0);
 
     vec3 amb = mat.ka * l.ia;
-    vec3 diff = mat.kd * l.id * dot(L,N);
-    vec3 spec = mat.ks * l.is * pow ( max(dot(V,R),0), mat.shine);
+    vec3 diff = mat.kd * l.id * NdotL;
+    vec3 spec = mat.ks * l.is * pow ( VdotR, mat.shine);
 
     // Distance attenuation
-    float d = distance(pos, l.pos);
+    float d = distance(pos, l.pos.xyz);
     float attf = 1. / 1. + (l.coef.x + l.coef.y*d + l.coef.z*d*d);
 
     return (amb + diff + spec) * attf;
