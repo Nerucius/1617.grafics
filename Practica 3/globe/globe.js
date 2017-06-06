@@ -17,15 +17,15 @@ var DAT = DAT || {};
 
 DAT.Globe = function(container, opts) {
   opts = opts || {};
-  
+
   var colorFn = opts.colorFn || function(x) {
     var c = new THREE.Color();
     c.setHSL( 0, 1.0, ( 0.6 - ( x * 0.5 ) ) );
-    
+
     // c.setHSL( ( 0.6 - ( x * 0.5 ) ), 1.0, 0.5 );
     return c;
   };
-  
+
   var imgDir = opts.imgDir || '/globe/';
 
   var Shaders = {
@@ -48,9 +48,9 @@ DAT.Globe = function(container, opts) {
         'varying vec2 vUv;',
         'void main() {',
           'vec3 diffuse = texture2D( texture, vUv ).xyz;',
-          'diffuse.r *= 1.2;',
+          'diffuse.g *= 1.2;',
           'float intensity = 1.05 - dot( vNormal, vec3( 0.0, 0.0, 1.0 ) );',
-          'vec3 atmosphere = vec3( 1.0, .0, .0 ) * pow( intensity, 3.0 );',
+          'vec3 atmosphere = vec3( .2, .6, .2 ) * pow( intensity, 3.0 );',
           'gl_FragColor = vec4( diffuse + atmosphere, 1.0 );',
         '}'
       ].join('\n')
@@ -68,7 +68,7 @@ DAT.Globe = function(container, opts) {
         'varying vec3 vNormal;',
         'void main() {',
           'float intensity = pow( 0.8 - dot( vNormal, vec3( 0, 0, 1.0 ) ), 12.0 );',
-          'gl_FragColor = vec4( 1.0, .3, .3, 1.0 ) * intensity;',
+          'gl_FragColor = vec4( .2, .6, .2, 1.0 ) * intensity;',
         '}'
       ].join('\n')
     }
@@ -110,7 +110,7 @@ DAT.Globe = function(container, opts) {
     shader = Shaders['earth'];
     uniforms = THREE.UniformsUtils.clone(shader.uniforms);
 
-    uniforms['texture'].value = THREE.ImageUtils.loadTexture(imgDir+'world.jpg');
+    uniforms['texture'].value = THREE.ImageUtils.loadTexture(imgDir+'world_z.jpg');
 
     material = new THREE.ShaderMaterial({
 
@@ -142,7 +142,7 @@ DAT.Globe = function(container, opts) {
     mesh.scale.set( 1.1, 1.1, 1.1 );
     scene.add(mesh);
 
-    geometry = new THREE.BoxGeometry(0.75, 0.75, 1);
+    geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
     geometry.applyMatrix(new THREE.Matrix4().makeTranslation(0,0,-0.5));
 
     point = new THREE.Mesh(geometry);
@@ -412,4 +412,3 @@ DAT.Globe = function(container, opts) {
   return this;
 
 };
-

@@ -96,18 +96,17 @@
 <div id="container"></div>
 
 <div id="info">
-  The <a href="http://www.chromeexperiments.com/globe">WebGL Globe</a> is an
-  open platform for visualizing geographic data. <span
-    class="bull">&bull;</span> <a href="https://github.com/dataarts/webgl-globe">Get
-  the code</a> <span class="bull">&bull;</span> By the Google Data Arts Team</a>
+  The <a href="https://en.wikipedia.org/wiki/Zombie">Zombie Apocalypse</a> is comming.
+  Hide yo kids, hide yo wife.<br>
+  Any resemblance with Global Cities Population is mere coincidence.
 </div>
 
 <div id="title">
-  Google Search Volume by Language
+  Most Dangerous places on Earth in the event of a Zombie Apocalypse
 </div>
 
 <a id="ce" href="http://www.chromeexperiments.com/globe">
-  <span>This is a Chrome Experiment</span>
+  <span>Welcome to the End of Times</span>
 </a>
 
 
@@ -118,17 +117,13 @@
 
   var globe = DAT.Globe(document.getElementById('container'), {
     colorFn: function(label) {
-       return new THREE.Color([
-         0xd9d9d9, 0xb6b4b5, 0x9966cc, 0x15adff, 0x3e66a3,
-         0x216288, 0xff7e7e, 0xff1f13, 0xc0120b, 0x5a1301, 0xffcc02,
-         0xedb113, 0x9fce66, 0x0c9a39,
-         0xfe9872, 0x7f3f98, 0xf26522, 0x2bb673, 0xd7df23,
-         0xe6b23a, 0x7ed3f7][label]);
+       return new THREE.Color(
+		   [0x0056DD, 0x00d917, 0xcab700, 0xC67800, 0xAB1716][label]);
     }
   });
 
   var xhr = new XMLHttpRequest();
-  xhr.open('GET', '/globe-search/search.json', true);
+  xhr.open('GET', '/globe-search/cities.json', true);
   xhr.onreadystatechange = function(e) {
     if (xhr.readyState === 4) {
       if (xhr.status === 200) {
